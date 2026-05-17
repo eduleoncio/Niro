@@ -37,35 +37,23 @@
 
   <section class="page2">
 
-    <!-- <div class="brands_section">
+    <img src="../assets/background-page2.svg" alt="">
 
-      <p class="subtitle">
-      </p>
+    <div class="funcionalides-text">
 
-      <div class="brands_slider">
-        <div class="brands_track">
+      <h2 class="title-page2">Intuitivo, rápido e eficiente,</h2>
+      <p class="paragraph-page2">para você que deseja otimizar o seu estoque, organizar os EPIs e concentrá-los em um
+        estoque virtual, <br> evitando gastos desnecessários com a compra de novos equipamentos que, por falta de
+        controle, foram <br> “perdidos”.</p>
 
-          <img src="../assets/brand2.svg" alt="" draggable="false">
-          <img src="../assets/brand3.svg" alt="" draggable="false">
-          <img src="../assets/brand4.svg" alt="" draggable="false">
-          <img src="../assets/brand5.svg" alt="" draggable="false">
-          <img src="../assets/brand6.svg" alt="" draggable="false">
-          <img src="../assets/brand7.svg" alt="" draggable="false">
+    </div>
 
+    <div class="cards-funcionalidades-page2">
 
-          <img src="../assets/brand2.svg" alt="" draggable="false">
-          <img src="../assets/brand3.svg" alt="" draggable="false">
-          <img src="../assets/brand4.svg" alt="" draggable="false">
-          <img src="../assets/brand5.svg" alt="" draggable="false">
-          <img src="../assets/brand6.svg" alt="" draggable="false">
-          <img src="../assets/brand7.svg" alt="" draggable="false">
-
-        </div>
-      </div>
-    </div> -->
-
-    <!-- resto da page 2 -->
-    <div class="features_section">
+      <img id="card-funcionalidades" src="../assets/card-funcionalidades.svg"
+        alt="Card de funcionalidades do sistema Niro">
+      <img id="card-documentacao" src="../assets/card-documentacao.svg" alt="Card de documentação do sistema Niro">
+      <img id="card-dinheiro" src="../assets/card-dinheiro.svg" alt="Card de economia do sistema Niro">
     </div>
 
   </section>
@@ -127,7 +115,7 @@ export default {
 .texto_principal {
   display: flex;
   text-align: start;
-  background: -webkit-linear-gradient(#ffffff, #b6b6b6);
+  background: -webkit-linear-gradient(#ffffff, #92FFB6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-top: 5rem;
@@ -240,70 +228,44 @@ export default {
   }
 }
 
-/* 
-.page2 {
-  background: #050505;
-  min-height: 100vh;
-  padding-bottom: 8rem;
-}
-
-.subtitle {
-  text-align: center;
-  color: #8a8a8a;
-  font-size: 14px;
-  margin-bottom: 2rem;
-}
-
-.brands_section {
-  background: #0B0B0B;
-  padding-top: 1.5rem;
-  padding-bottom: 2.5rem;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.brands_slider {
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-  white-space: nowrap;
-}
-
-.brands_track {
-  display: inline-flex;
+.funcionalides-text {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5rem;
+  justify-content: center;
+  text-align: center;
+  margin-top: 4rem;
 
-  animation: scrollBrands 30s linear infinite;
-
-  will-change: transform;
 }
 
-.brands_track img {
-  height: 35px;
-  flex-shrink: 0;
-  opacity: 0.8;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  cursor: pointer;
+/*Página 2*/
+
+.page2 {
+  min-height: 100vh;
+   background: -webkit-linear-gradient(#061600, #00100A);
 }
 
-.brands_track img:hover {
-  transform: scale(1.08);
-  opacity: 1;
+.title-page2 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 2.5rem;
+  background: -webkit-linear-gradient(#ffffff, #92FFB6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.brands_slider:hover .brands_track {
-  animation-play-state: paused;
+.paragraph-page2 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 0.8rem;
+  margin-top: 1rem;
 }
 
-@keyframes scrollBrands {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
+.cards-funcionalidades-page2 {
+  display: inline-block;
+  justify-content: center;
+  margin-top: 3rem;
+  text-align: center;
 
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-} */
-
+}
 </style>
