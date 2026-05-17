@@ -136,7 +136,7 @@ function toggleSidebar() {
 
 .sidebar {
   width: 250px;
-  background: #001C00;
+  background: #0A0E0D;
   color: white;
   position: fixed;
   height: 100vh;

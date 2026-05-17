@@ -4,13 +4,6 @@
 
     <main class="conteudo" :style="{ marginLeft: isSidebarCollapsed ? '80px' : '250px' }">
       <section class="dashboard-top" v-if="isDashboardRoot">
-        <div class="dashboard-header">
-          <div>
-            <p class="eyebrow">Painel de Controle</p>
-            <h1>Dashboard</h1>
-          </div>
-          <div class="status-pill">Atualizado agora</div>
-        </div>
 
         <div class="stat-grid">
           <article class="stat-card stat-card--green">
@@ -120,7 +113,8 @@ const expensiveChart = [
 .shell {
   display: flex;
   min-height: 100vh;
-  background: #061206;
+  background: #0A0E0D;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .conteudo {
@@ -138,12 +132,6 @@ const expensiveChart = [
   margin-bottom: 2rem;
 }
 
-.eyebrow {
-  text-transform: uppercase;
-  color: #7ed56f;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-}
 
 .dashboard-header h1 {
   margin: 0;
@@ -184,14 +172,14 @@ const expensiveChart = [
 }
 
 .stat-label {
-  color: #9bd89a;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
 }
 
 .stat-card strong {
-  font-size: 2.15rem;
+  font-size: 1.2rem;
   margin: 0.75rem 0 0.5rem;
   display: block;
 }
