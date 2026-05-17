@@ -6,7 +6,7 @@
   </div>
 
   <!-- PÁGINA 1 -->
-  <section class="page">
+  <section id="page" class="page">
 
     <h1 class="texto_principal">
       Organize, monitore e otimize <br> seu estoque de EPIs
@@ -35,11 +35,9 @@
     </div>
   </section>
 
-  <section class="page2">
+  <section id="page2" class="page2">
 
-    <img src="../assets/background-page2.svg" alt="">
-
-    <div class="funcionalides-text">
+    <div class="funcionalidades-text">
 
       <h2 class="title-page2">Intuitivo, rápido e eficiente,</h2>
       <p class="paragraph-page2">para você que deseja otimizar o seu estoque, organizar os EPIs e concentrá-los em um
@@ -58,11 +56,51 @@
 
   </section>
 
+  <section id="page3" class="page3">
+
+    <div class="telas-text">
+
+      <h2 class="title-page3">Muitas telas para gerenciar o seu estoque,</h2>
+      <p class="paragraph-page3">com diversas ferramentas para você acompanhar de perto tudo que está acontecendo com os
+        seus <br> equipamentos.</p>
+    </div>
+
+    <div class="screens">
+      <img id="sceens-page3" src="../assets/telas-page3.svg" alt="Tela do estoque de EPIs">
+    </div>
+
+  </section>
+
+  <footer id="contato" class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img class="footer-logo" :src="LogoSvg" alt="Niro logotipo" />
+      </div>
+      <div class="footer-block">
+        <p class="footer-title">Links</p>
+        <RouterLink :to="{ path: '/', hash: '#page' }">Home</RouterLink>
+        <RouterLink :to="{ path: '/', hash: '#page2' }">Funcionalidades</RouterLink>
+      </div>
+      <div class="footer-block">
+        <p class="footer-title">Contatos</p>
+        <a href="https://github.com/eduleoncio" target="_blank" rel="noreferrer">https://github.com/eduleoncio</a>
+      </div>
+      <div class="footer-block footer-location">
+        <p class="footer-title">Onde estamos</p>
+        <p>Escola e Faculdade de Tecnologia</p>
+        <p>SENAI “Roberto Mange”</p>
+        <p>Campinas, SP - Brasil</p>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 — Projeto Acadêmico</div>
+  </footer>
+
 </template>
 
 <script>
 import router from '../router'
 import AppHeader from '../components/AppHeader.vue'
+import LogoSvg from '../assets/logotipo.svg'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 export default {
@@ -91,7 +129,8 @@ export default {
     return {
       router,
       menuAberto,
-      scrolled
+      scrolled,
+      LogoSvg
     }
   }
 }
@@ -228,21 +267,23 @@ export default {
   }
 }
 
-.funcionalides-text {
+.page2 {
+  min-height: 100vh;
+  background-color: #061600;
+  background: linear-gradient(180deg, #061600 0%, #00100A 100%);
+  background-repeat: no-repeat, no-repeat;
+  background-position: top center, center;
+  background-size: 100%, cover;
+  padding: 0rem 0rem 3rem 0rem;
+}
+
+.funcionalidades-text {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   margin-top: 4rem;
-
-}
-
-/*Página 2*/
-
-.page2 {
-  min-height: 100vh;
-   background: -webkit-linear-gradient(#061600, #00100A);
 }
 
 .title-page2 {
@@ -267,5 +308,126 @@ export default {
   margin-top: 3rem;
   text-align: center;
 
+}
+
+.page3 {
+  min-height: 100vh;
+  background-color: #061600;
+  background-size: 100%, cover;
+  background: url(../assets/backgroun-page3.svg);
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: cover;
+}
+
+.telas-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.title-page3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 2.5rem;
+  background: -webkit-linear-gradient(#ffffff, #92FFB6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.paragraph-page3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 0.8rem;
+  margin-top: 1rem;
+}
+
+.screens {
+  display: flex;
+  justify-content: center;
+}
+
+#sceens-page3 {
+  width: 80%;
+  margin-top: 2rem;
+}
+
+.site-footer {
+  background-color: #010c04;
+  color: rgba(255, 255, 255, 0.92);
+  padding: 3rem 2rem 2rem;
+  margin-top: 2rem;
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(3, 2fr);
+  gap: 2rem;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.footer-brand span {
+  display: inline-block;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.footer-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-title {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.footer-block a,
+.footer-block p {
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.footer-block a:hover {
+  color: #b6f5d9;
+}
+
+.footer-location p {
+  line-height: 1.7;
+}
+
+.footer-copy {
+  max-width: 1200px;
+  margin: 1.5rem auto 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.58);
+  text-align: center;
+}
+
+.footer-logo {
+  width: 5.5rem;
+  height: auto;
+  display: block;
+  margin-left: 2rem;
+}
+
+.site-footer {
+  font-family: 'Montserrat', sans-serif;
+}
+
+@media (max-width: 900px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

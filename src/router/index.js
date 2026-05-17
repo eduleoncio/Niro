@@ -89,7 +89,29 @@ const routes = [
 // Cria a instância do router
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+    if (to.hash) {
+      const headerOffset = 88
+      const element = document.querySelector(to.hash)
+      if (element) {
+        const top = element.getBoundingClientRect().top + window.pageYOffset - headerOffset
+        return {
+          left: 0,
+          top: top > 0 ? top : 0,
+          behavior: 'smooth'
+        }
+      }
+      return {
+        el: to.hash,
+        behavior: 'smooth'
+      }
+    }
+    return { top: 0 }
+  }
 })
 
 router.beforeEach(async (to, from, next) => {

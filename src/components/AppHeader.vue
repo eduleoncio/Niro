@@ -10,10 +10,10 @@
       <!-- Menu -->
       <nav :class="['menu_principal', { ativo: menuAberto }]">
         <ul class="links_navbar">
-          <li><router-link to="/">Como funciona</router-link></li>
-          <li><router-link to="/contato">Resultados</router-link></li>
-          <li><router-link to="/funcionalidades">Depoimentos</router-link></li>
-          <li><router-link to="/funcionalidades">FAQ</router-link></li>
+          <li><router-link :to="{ path: '/', hash: '#page' }">Início</router-link></li>
+          <li><router-link :to="{ path: '/', hash: '#page2' }">Funcionalidades</router-link></li>
+          <li><router-link :to="{ path: '/', hash: '#page3' }">Telas</router-link></li>
+          <li><router-link :to="{ path: '/', hash: '#contato' }">Contato</router-link></li>
         </ul>
       </nav>
 
@@ -66,7 +66,7 @@ onUnmounted(() => {
 
 /* quando rolar */
 .navbar.scrolled {
-   background: rgba(4, 4, 4, 0.25);
+  background: rgba(4, 4, 4, 0.25);
   backdrop-filter: blur(25px);
 }
 
