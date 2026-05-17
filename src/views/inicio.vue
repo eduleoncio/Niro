@@ -72,25 +72,43 @@
   </section>
 
   <footer id="contato" class="site-footer">
+
     <div class="footer-inner">
+
       <div class="footer-brand">
         <img class="footer-logo" :src="LogoSvg" alt="Niro logotipo" />
       </div>
+
       <div class="footer-block">
-        <p class="footer-title">Links</p>
-        <RouterLink :to="{ path: '/', hash: '#page' }">Home</RouterLink>
-        <RouterLink :to="{ path: '/', hash: '#page2' }">Funcionalidades</RouterLink>
+
+        <h3 class="footer-title">Links</h3>
+        <RouterLink :to="{ path: '/', hash: '#page' }">
+          <p class="footer-link">Home</p>
+        </RouterLink>
+        <RouterLink :to="{ path: '/', hash: '#page2' }">
+          <p class="footer-link">Funcionalidades</p>
+        </RouterLink>
+
       </div>
+
       <div class="footer-block">
-        <p class="footer-title">Contatos</p>
-        <a href="https://github.com/eduleoncio" target="_blank" rel="noreferrer">https://github.com/eduleoncio</a>
+
+        <h3 class="footer-title">Contato</h3>
+        <a href="https://github.com/eduleoncio" target="_blank" rel="noreferrer">
+          <p class="footer-link">https://github.com/eduleoncio</p>
+        </a>
+
       </div>
+
       <div class="footer-block footer-location">
-        <p class="footer-title">Onde estamos</p>
-        <p>Escola e Faculdade de Tecnologia</p>
-        <p>SENAI “Roberto Mange”</p>
-        <p>Campinas, SP - Brasil</p>
+
+        <h3 class="footer-title">Onde estamos</h3>
+        <a href="https://www.sp.senai.br/unidade/campinas/" target="_blank" rel="noreferrer">
+          <p class="footer-link">Escola e Faculdade de Tecnologia SENAI "Roberto Mange"</p>
+        </a>
+
       </div>
+
     </div>
     <div class="footer-copy">© 2026 — Projeto Acadêmico</div>
   </footer>
@@ -357,7 +375,6 @@ export default {
 
 .site-footer {
   background-color: #010c04;
-  color: rgba(255, 255, 255, 0.92);
   padding: 3rem 2rem 2rem;
   margin-top: 2rem;
 }
@@ -370,32 +387,24 @@ export default {
   margin: 0 auto;
 }
 
-.footer-brand span {
-  display: inline-block;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
 .footer-block {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .footer-title {
+  font-size: 1.1rem;
+  font-weight: 600;
   margin: 0 0 1rem;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(107, 106, 106, 0.72);
+  text-decoration: none;
 }
 
-.footer-block a,
-.footer-block p {
-  color: rgba(255, 255, 255, 0.92);
+.footer-link {
+  color: rgba(255, 255, 255);
   text-decoration: none;
-  font-size: 0.95rem;
+  transition: color 0.3s;
 }
 
 .footer-block a:hover {

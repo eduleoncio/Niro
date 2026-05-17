@@ -1,11 +1,17 @@
 <template>
+
+  <div class="background">
+    <img src="../assets/background-login.svg" alt="Fundo da tela de login">
+  </div>
+
   <!-- Container principal da tela de login -->
   <div class="container-login">
     <!-- Caixa do formulário -->
     <div class="form-box">
+
+      <img class="logotipo" src="../assets/logotipo.svg" alt="Logotipo do Niro">
       <!-- Título da página -->
-      <h1 class="titulo">Sistema de EPI</h1>
-      <p class="subtitulo">Faça login para acessar o sistema</p>
+      <h1 class="titulo">Bem-vindo(a) de volta!</h1>
 
       <!-- Formulário de login -->
       <!-- @submit.prevent="fazerLogin" = quando o usuário clica em "Entrar", chama a função fazerLogin() -->
@@ -43,10 +49,6 @@
         </button>
       </form>
 
-      <!-- Dica para o usuário -->
-      <p class="dica">
-        <strong>Dica:</strong> Use um e-mail e senha válidos cadastrados no Supabase.
-      </p>
     </div>
   </div>
 </template>
@@ -197,7 +199,23 @@ async function fazerLogin() {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 /* ===== CONTAINER PRINCIPAL ===== */
@@ -206,9 +224,18 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
   min-height: 100vh;
-  background-color: #FFFFFF;
-  padding: 20px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.logotipo {
+  display: block;
+  margin: 0 auto 2rem auto;
+  width: 5rem;
+  height: auto;
 }
 
 /* ===== CAIXA DO FORMULÁRIO ===== */
@@ -217,28 +244,23 @@ body {
   width: 100%;
   max-width: 450px;
   padding: 50px 40px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  background-color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background-color: rgba(10, 18, 12, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 /* ===== TÍTULOS ===== */
 /* Título principal */
 .titulo {
-  font-size: 32px;
-  color: #003D99;
-  font-weight: 700;
-  margin-bottom: 8px;
+  font-size: 1.7rem;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 1rem;
   text-align: center;
-}
-
-/* Subtítulo */
-.subtitulo {
-  font-size: 16px;
-  color: #1A1A1A;
-  text-align: center;
-  margin-bottom: 40px;
+  font-family: 'Montserrat', sans-serif;
 }
 
 /* ===== FORMULÁRIO ===== */
@@ -260,9 +282,11 @@ body {
 /* ===== LABELS ===== */
 /* Rótulos dos campos (E-mail, Senha) */
 .label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #003D99;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #888888;
+  font-family: 'Montserrat', sans-serif;
+
 }
 
 /* ===== INPUTS ===== */
@@ -272,9 +296,9 @@ body {
   border: 1px solid #E2E8F0;
   border-radius: 4px;
   font-size: 16px;
-  color: #1A1A1A;
-  background-color: #FFFFFF;
+  color: #ffffff;
   transition: all 0.3s ease;
+
 }
 
 /* Quando o usuário clica no input, muda a borda para azul */
@@ -282,6 +306,7 @@ body {
   outline: none;
   border-color: #003D99;
   box-shadow: 0 0 0 3px rgba(0, 61, 153, 0.1);
+
 }
 
 /* ===== MENSAGEM DE ERRO ===== */
@@ -307,12 +332,12 @@ body {
 /* Estilo do botão de login */
 .botao-entrar {
   padding: 12px 24px;
-  background-color: #003D99;
-  color: #FFFFFF;
+  background-color: #FFFFFF;
+  color: #000000;
   border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -320,27 +345,18 @@ body {
   justify-content: center;
   gap: 8px;
   min-height: 44px;
+  font-family: 'Montserrat', sans-serif;
 }
 
 /* Quando passa o mouse no botão, muda a cor */
 .botao-entrar:hover:not(:disabled) {
-  background-color: #002D73;
+  background-color: #818181;
 }
 
 /* Quando o botão está desabilitado (carregando), muda a aparência */
 .botao-entrar:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* ===== DICA ===== */
-/* Estilo da dica para o usuário */
-.dica {
-  font-size: 13px;
-  color: #6B7280;
-  text-align: center;
-  margin-top: 20px;
-  line-height: 1.5;
 }
 
 /* ===== RESPONSIVIDADE ===== */
