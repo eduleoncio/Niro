@@ -93,7 +93,7 @@
                                 <p>{{ e.tipo_epi || 'Sem categoria' }}</p>
                             </div>
                             <strong>R$ {{ Number(e.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-                                }}</strong>
+                            }}</strong>
                         </div>
                         <div class="product-card-meta">
                             <span>C.A. {{ e.ca }}</span>
@@ -168,7 +168,7 @@ const salvar = async () => {
         const fileName = `${Date.now()}_${imagemFile.value.name}`
 
         const { error } = await supabase.storage
-            .from('epis')
+            .from('assets-epis')
             .upload(fileName, imagemFile.value)
 
         if (error) {
@@ -177,7 +177,7 @@ const salvar = async () => {
         }
 
         const { data } = supabase.storage
-            .from('epis')
+            .from('assets-epis')
             .getPublicUrl(fileName)
 
         imageUrl = data.publicUrl

@@ -45,7 +45,15 @@ const carregarEPIs = async () => {
     return
   }
 
-  epis.value = data
+  // Atualiza possíveis URLs públicas que usam o bucket antigo 'epis'
+  // Ex.: https://<proj>.supabase.co/storage/v1/object/public/epis/arquivo.jpg
+  // -> https://<proj>.supabase.co/storage/v1/object/public/assets-epis/arquivo.jpg
+  epis.value = (data || []).map(item => {
+    if (item && item.imagem_url && typeof item.imagem_url === 'string') {
+      item.imagem_url = item.imagem_url.replace('/public/epis/', '/public/assets-epis/')
+    }
+    return item
+  })
 }
 
 const onImageError = (event) => {
