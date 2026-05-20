@@ -25,6 +25,7 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useSupabase } from '../composables/useSupabase'
@@ -85,7 +86,7 @@ onMounted(carregarEPIs)
 
 .card-image {
   background: #091006;
-  min-height: 200px;
+  min-height: auto;
   overflow: hidden;
   display: flex;
   justify-content: center;

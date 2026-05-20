@@ -4,7 +4,6 @@
             <div class="header-left">
                 <img src="../assets/icon-tela-cadastrarEPI.svg" alt="Cadastrar EPI" class="page-icon" />
                 <div>
-                    <p class="eyebrow">Cadastrar EPI</p>
                     <h1>Informações do Equipamento</h1>
                     <p class="page-subtitle">Preencha todos os campos obrigatórios</p>
                 </div>
@@ -25,8 +24,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Número do C.A.</label>
-                    <input v-model="form.ca" type="text" placeholder="C.A." required>
+                    <label>Número do C.A</label>
+                    <input v-model="form.ca" type="text" placeholder="C.A" required>
                 </div>
 
                 <div class="form-group">
@@ -279,7 +278,6 @@ onMounted(carregar)
 .layout-container {
     padding: 2rem;
     min-height: 100vh;
-    background: #08130b;
     font-family: 'Montserrat', sans-serif;
 }
 
@@ -301,22 +299,6 @@ onMounted(carregar)
     gap: 1.5rem;
 }
 
-.page-icon {
-    width: 58px;
-    height: 58px;
-    padding: 0.75rem;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.eyebrow {
-    margin: 0 0 0.35rem;
-    font-size: 0.9rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #7ed56f;
-}
-
 .page-header h1 {
     margin: 0;
     font-size: 2rem;
@@ -325,7 +307,7 @@ onMounted(carregar)
 
 .page-subtitle {
     margin: 0.5rem 0 0;
-    color: #c8d7c4;
+    color: #7f7f7f;
 }
 
 .header-tag {
@@ -356,7 +338,7 @@ onMounted(carregar)
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
+    gap: 0.5rem;
 }
 
 .form-group-full {

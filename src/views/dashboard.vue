@@ -113,7 +113,7 @@ const expensiveChart = [
 .shell {
   display: flex;
   min-height: 100vh;
-  background: #0A0E0D;
+  background: url(../assets/background-geral.svg);
   font-family: 'Montserrat', sans-serif;
 }
 

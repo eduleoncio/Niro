@@ -62,13 +62,6 @@
         <span class="menu-label">Funcionários</span>
       </RouterLink>
 
-      <RouterLink to="/dashboard/aluno" class="menu-item" active-class="active">
-        <div class="icon-box">
-          <img src="../assets/icon-alunos.svg" class="menu-icon" />
-        </div>
-        <span class="menu-label">Alunos</span>
-      </RouterLink>
-
       <RouterLink to="/dashboard/perfil" class="menu-item" active-class="active">
         <div class="icon-box">
           <img src="../assets/icon-perfil.svg" class="menu-icon" />
@@ -126,16 +119,20 @@ function toggleSidebar() {
   display: flex;
   justify-content: center;
   align-items: center;
+
 }
 
 .navbar_logo {
   width: auto;
-  margin-top: 1rem;
   width: 3.5rem;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  text-align: center;
 }
 
 .sidebar {
-  width: 250px;
+  width: 15.625rem;
   background: #0A0E0D;
   color: white;
   position: fixed;
@@ -145,7 +142,7 @@ function toggleSidebar() {
 }
 
 .sidebar--collapsed {
-  width: 80px;
+  width: 5rem;
 }
 
 .sidebar-top {
@@ -159,32 +156,41 @@ function toggleSidebar() {
   justify-content: center;
 }
 
+.sidebar:not(.sidebar--collapsed) .sidebar-top {
+  justify-content: center;
+}
+
+.sidebar:not(.sidebar--collapsed) .hamburger-button {
+  position: absolute;
+  left: 1.3rem;
+}
+
 .hamburger-button {
-  width: 38px;
-  height: 38px;
+  width: 2.375rem;
+  height: 2.375rem;
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5px;
+  gap: 0.3125rem;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
+  border-radius: 0.75rem;
   cursor: pointer;
-  padding: 6px;
+  padding: 0.375rem;
 }
 
 .hamburger-button span {
   display: block;
   width: 100%;
-  height: 3px;
-  background: #fff;
+  height: 0.1875rem;
+  background: #ffffff;
   border-radius: 999px;
 }
 
 .menu {
   text-align: start;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: 1.875rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -196,12 +202,15 @@ function toggleSidebar() {
   gap: 1rem;
   color: rgba(255, 255, 255, 0.288);
   text-decoration: none;
-  padding: 10px;
+  padding: 0.625rem;
   font-weight: 400;
 }
 
 .sidebar--collapsed .menu-item {
-  justify-content: center;
+  padding: 0.625rem;
+  gap: 0;
+  width: 3.1rem;
+
 }
 
 .menu-label {
@@ -217,8 +226,8 @@ function toggleSidebar() {
 }
 
 .menu-icon {
-  width: 15px;
-  height: 15px;
+  width: 0.9375rem;
+  height: 0.9375rem;
   object-fit: contain;
   opacity: 0.3;
   transition: 0.2s;
@@ -226,13 +235,13 @@ function toggleSidebar() {
 
 .menu-item.active {
   background: rgba(64, 137, 60, 1);
-  border-radius: 5px;
+  border-radius: 0.3125rem;
   color: rgb(255, 255, 255);
 }
 
 .botao-sair {
   border: solid;
-  border-radius: 6px;
+  border-radius: 0.375rem;
   border-style: solid;
   border-width: 1px;
   border-color: rgb(0, 255, 47);
@@ -243,27 +252,28 @@ function toggleSidebar() {
   align-items: center;
   justify-content: center;
   display: flex;
-  gap: 0.5rem;
   width: 100%;
   margin-top: 4.2rem;
 }
 
 .sidebar--collapsed .botao-sair {
-  justify-content: center;
+  padding: 0.625rem;
+  gap: 0;
+  width: 3.1rem;
 }
 
 .menu-icon-logout {
-  width: 15px;
-  height: 18px;
+  width: 0.9375rem;
+  height: 1.125rem;
 }
 
 .icon-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.25rem;
   transition: 0.2s;
 }
 

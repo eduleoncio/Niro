@@ -14,7 +14,6 @@ import RastrearEPI from '../views/rastrearEPI.vue'
 import RetirarEPI from '../views/retirarEPI.vue'
 import Relatorios from '../views/relatorios.vue'
 import Funcionarios from '../views/funcionarios.vue'
-import Aluno from '../views/aluno.vue'
 import Perfil from '../views/perfil.vue'
 
 // Define todas as rotas da aplicação
@@ -60,10 +59,6 @@ const routes = [
     component: Funcionarios  // Mostra o componente Produtos
   },
   {
-    path: '/aluno', // URL /produtos
-    component: Aluno  // Mostra o componente Produtos
-  },
-  {
     path: '/perfil', // URL /produtos
     component: Perfil  // Mostra o componente Produtos
   },
@@ -80,7 +75,6 @@ const routes = [
     { path: 'retirarEPI', component: RetirarEPI },
     { path: 'relatorios', component: Relatorios },
     { path: 'funcionarios', component: Funcionarios },
-    { path: 'aluno', component: Aluno },
     { path: 'perfil', component: Perfil }
     ]
 }
