@@ -12,8 +12,8 @@
           </select>
 
           <input v-model="filters.nome" placeholder="Ex.: Ana Paula" class="filter-input" />
-          <input v-model="filters.matricula" placeholder="Matrícula" class="filter-input" />
-          <input v-model="filters.cargo" placeholder="Cargo" class="filter-input" />
+          <input v-model="filters.matricula" placeholder="Ex.: MATPROF005" class="filter-input" />
+          <input v-model="filters.cargo" placeholder="Ex.: Professor de Eletrônica" class="filter-input" />
 
           <button class="btn-clear" @click="clearFilters">Limpar Filtros</button>
         </div>
