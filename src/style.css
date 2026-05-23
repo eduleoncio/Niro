@@ -19,8 +19,12 @@ body {
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #061600;
+  --color-primary: #92FFB6;
+  --color-primary-dark: #78d696;
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-bg: #061600;
+  color: var(--color-text);
+  background-color: var(--color-bg);
   background-size: 100%;
 
   font-synthesis: none;

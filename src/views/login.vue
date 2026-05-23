@@ -332,8 +332,8 @@ body {
 /* Estilo do botão de login */
 .botao-entrar {
   padding: 12px 24px;
-  background-color: #FFFFFF;
-  color: #000000;
+  background-color: var(--color-primary);
+  color: #061600;
   border: none;
   border-radius: 5px;
   font-size: 1rem;
@@ -350,7 +350,7 @@ body {
 
 /* Quando passa o mouse no botão, muda a cor */
 .botao-entrar:hover:not(:disabled) {
-  background-color: #818181;
+  background-color: var(--color-primary-dark);
 }
 
 /* Quando o botão está desabilitado (carregando), muda a aparência */

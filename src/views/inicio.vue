@@ -204,25 +204,21 @@ export default {
 
 .button_demonstration {
   background-color: transparent;
-  border: solid;
-  border-radius: 2px;
-  border-color: #898989;
-  color: #ffffff;
+  border: 2px solid var(--color-primary);
   border-radius: 5px;
+  color: var(--color-primary);
   padding: 0.5rem 1.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
   text-align: center;
-
 }
 
 .button_account {
-  background-color: #ffffff;
-  border: solid;
-  color: black;
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-primary);
   border-radius: 5px;
-  border-color: #ffffff;
+  color: #061600;
   padding: 0.5rem 1.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -230,7 +226,7 @@ export default {
 }
 
 .button_account:hover {
-  background: #c2c2c2;
+  background: var(--color-primary-dark);
 }
 
 .button_account:active {
