@@ -12,7 +12,6 @@ import Estoque from '../views/estoque.vue'
 import CadastrarEPI from '../views/cadastrarEPI.vue'
 import RastrearEPI from '../views/rastrearEPI.vue'
 import RetirarEPI from '../views/retirarEPI.vue'
-import Relatorios from '../views/relatorios.vue'
 import Funcionarios from '../views/funcionarios.vue'
 import Perfil from '../views/perfil.vue'
 
@@ -50,10 +49,7 @@ const routes = [
     path: '/retirarEPI', // URL /produtos 
     component: RetirarEPI // Mostra o componente Produtos
   },
-   {
-    path: '/relatorios', // URL /produtos
-    component: Relatorios  // Mostra o componente Produtos
-  },
+  
   {
     path: '/funcionarios', // URL /produtos
     component: Funcionarios  // Mostra o componente Produtos
@@ -73,7 +69,6 @@ const routes = [
     { path: 'cadastrarEPI', component: CadastrarEPI },
     { path: 'rastrearEPI', component: RastrearEPI },
     { path: 'retirarEPI', component: RetirarEPI },
-    { path: 'relatorios', component: Relatorios },
     { path: 'funcionarios', component: Funcionarios },
     { path: 'perfil', component: Perfil }
     ]

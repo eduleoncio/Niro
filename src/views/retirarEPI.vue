@@ -86,6 +86,7 @@ function submitRetirada() {
         dataRetirada: form.dataRetirada,
         nomeResponsavel: form.nomeResponsavel.trim(),
         descricao: form.descricao.trim(),
+        devolucoes: 0,
         createdAt: new Date().toISOString()
     }
 
@@ -96,9 +97,8 @@ function submitRetirada() {
 
 <style scoped>
 .retirar-page {
-    padding: 1.75rem;
-    min-height: 100vh;
-    background: #07100d;
+    padding: 1.2rem;
+    min-height: auto;
     box-sizing: border-box;
 }
 
@@ -107,9 +107,10 @@ function submitRetirada() {
     margin: 0 auto;
     padding: 2rem;
     border-radius: 1.25rem;
-    background: rgba(15, 20, 19, 0.95);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    backdrop-filter: blur(20px);
 }
 
 .retirar-header {
@@ -135,6 +136,7 @@ function submitRetirada() {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .field-card {
@@ -160,6 +162,8 @@ function submitRetirada() {
     padding: 1rem;
     border-radius: 1rem;
     outline: none;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .field-card input::placeholder,
@@ -168,7 +172,7 @@ function submitRetirada() {
 }
 
 .field-card textarea {
-    min-height: 10rem;
+    min-height: 5rem;
     resize: vertical;
 }
 

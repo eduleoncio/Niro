@@ -8,31 +8,31 @@
         <div class="stat-grid">
           <article class="stat-card stat-card--green">
             <span class="stat-label">EPIs cadastrados</span>
-            <strong>210</strong>
+            <strong>{{ totalEPIs }}</strong>
             <small>Total de itens no sistema</small>
           </article>
 
           <article class="stat-card stat-card--orange">
             <span class="stat-label">EPIs retirados hoje</span>
-            <strong>39</strong>
+            <strong>{{ retiradosHoje }}</strong>
             <small>Movimentação do dia</small>
           </article>
 
           <article class="stat-card stat-card--red">
             <span class="stat-label">EPIs sem estoque</span>
-            <strong>4</strong>
+            <strong>{{ semEstoque }}</strong>
             <small>Produtos críticos</small>
           </article>
 
           <article class="stat-card stat-card--blue">
             <span class="stat-label">Maior quantidade</span>
-            <strong>Capacetes</strong>
+            <strong>{{ maiorQuantidadeNome || '—' }}</strong>
             <small>EPI com mais unidades</small>
           </article>
 
           <article class="stat-card stat-card--purple">
             <span class="stat-label">EPIs mais caros</span>
-            <strong>Máscara P3</strong>
+            <strong>{{ expensiveChart.length ? expensiveChart[0].label : '—' }}</strong>
             <small>Maior valor unitário</small>
           </article>
         </div>
@@ -85,28 +85,94 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useSupabase } from '../composables/useSupabase'
 import Sidebar from '../components/sidebar.vue'
 
 const isSidebarCollapsed = ref(true)
 const route = useRoute()
 const isDashboardRoot = computed(() => route.path === '/dashboard')
 
-const quantityChart = [
-  { label: 'Capacete', value: 124, width: 92 },
-  { label: 'Luvas', value: 96, width: 72 },
-  { label: 'Colete', value: 82, width: 61 },
-  { label: 'Máscara P3', value: 59, width: 44 },
-  { label: 'Botina', value: 47, width: 35 }
-]
+const { supabase } = useSupabase()
 
-const expensiveChart = [
-  { label: 'Máscara P3', price: 142.50, margin: 24 },
-  { label: 'Botina Segurança', price: 98.90, margin: 18 },
-  { label: 'Protetor Auricular', price: 62.30, margin: 13 },
-  { label: 'Capacete Segurança', price: 55.00, margin: 10 }
-]
+const totalEPIs = ref(0)
+const retiradosHoje = ref(0) // no transactions table available; default 0
+const semEstoque = ref(0)
+const maiorQuantidadeNome = ref('')
+
+const quantityChart = ref([])
+const expensiveChart = ref([])
+
+onMounted(async () => {
+  try {
+    const { data, error } = await supabase.from('epis').select('*')
+    if (error) {
+      console.error('Erro ao buscar EPIs:', error)
+      return
+    }
+
+    const rows = data || []
+    totalEPIs.value = rows.length
+
+    // sem estoque: quantidade <= 0 or null
+    semEstoque.value = rows.filter(r => !(r.quantidade) || Number(r.quantidade) <= 0).length
+
+    // maior quantidade
+    const byQuantity = rows.slice().sort((a, b) => (Number(b.quantidade) || 0) - (Number(a.quantidade) || 0))
+    maiorQuantidadeNome.value = byQuantity.length ? (byQuantity[0].nome_epi || '') : ''
+
+    // quantity chart - top 5
+    const topQty = byQuantity.slice(0, 5).map(r => ({ label: r.nome_epi || '—', value: Number(r.quantidade) || 0 }))
+    const maxVal = topQty.length ? Math.max(...topQty.map(i => i.value)) : 1
+    quantityChart.value = topQty.map(i => ({ ...i, width: maxVal ? Math.round((i.value / maxVal) * 100) : 0 }))
+
+    // expensive chart - top 4 by preco
+    const byPrice = rows.slice().sort((a, b) => (Number(b.preco) || 0) - (Number(a.preco) || 0))
+    const topExp = byPrice.slice(0, 4).map(r => ({ label: r.nome_epi || '—', price: Number(r.preco) || 0 }))
+    // margin: relative percentage to highest
+    const highest = topExp.length ? topExp[0].price : 1
+    expensiveChart.value = topExp.map(e => ({ ...e, margin: highest ? Math.round((e.price / highest) * 100) : 0 }))
+
+    // try to detect today's withdrawals from common tables
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const isoStart = today.toISOString()
+    const movementTables = ['movimentacoes', 'movimentacao', 'retiradas', 'entregas']
+    for (const t of movementTables) {
+      try {
+        const resp = await supabase.from(t).select('id', { count: 'exact' }).gte('created_at', isoStart)
+        if (!resp.error && resp.count != null) {
+          retiradosHoje.value = resp.count
+          break
+        }
+      } catch (e) {
+        // table or column may not exist — ignore and try next
+      }
+    }
+
+    // also check localStorage fallback used by RetirarEPI view
+    try {
+      const local = localStorage.getItem('epi-fichas')
+      if (local) {
+        const fichas = JSON.parse(local)
+        const localCount = (fichas || []).filter(f => {
+          if (!f.createdAt) return false
+          try {
+            const d = new Date(f.createdAt)
+            return d >= new Date(isoStart)
+          } catch { return false }
+        }).length
+        retiradosHoje.value = (retiradosHoje.value || 0) + localCount
+      }
+    } catch (e) {
+      // ignore localStorage errors
+    }
+
+  } catch (err) {
+    console.error('Erro ao carregar dashboard:', err)
+  }
+})
 </script>
 
 <style scoped>

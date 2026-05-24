@@ -36,10 +36,18 @@
             </div>
             <div>
               <span>Devoluções Realizadas</span>
-              <strong>0</strong>
+              <strong>{{ f.devolucoes || 0 }}</strong>
             </div>
           </div>
-          <button class="ficha-button">Gerar PDF</button>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <input type="number" class="devolver-input" v-model.number="f._devolverCount" :min="1"
+              :max="Math.max(1, (f.quantidade || 0) - (f.devolucoes || 0))" />
+            <button class="ficha-button" @click="devolver(f)"
+              :disabled="(f.quantidade || 0) - (f.devolucoes || 0) <= 0">Devolver EPI</button>
+            <button class="ficha-button" @click="deleteFicha(f)"
+              style="background:rgba(200,40,40,0.95)">Excluir</button>
+            <button class="ficha-button">Gerar PDF</button>
+          </div>
         </article>
       </div>
       <div v-if="fichas.length === 0" class="empty-state">Nenhuma ficha de EPI encontrada.</div>
@@ -55,10 +63,19 @@ const fichas = ref([])
 
 function loadFichas() {
   try {
-    fichas.value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+    fichas.value = raw.map((f) => ({
+      ...f,
+      devolucoes: Number(f.devolucoes || 0),
+      _devolverCount: Number(f._devolverCount || 1)
+    }))
   } catch {
     fichas.value = []
   }
+}
+
+function saveFichas() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(fichas.value))
 }
 
 function initials(name) {
@@ -73,7 +90,28 @@ function formatDate(value) {
 
 const totalEpis = computed(() => fichas.value.reduce((sum, item) => sum + Number(item.quantidade || 0), 0))
 const totalResponsaveis = computed(() => new Set(fichas.value.map((item) => item.nomeResponsavel)).size)
-const devolucoes = computed(() => 0)
+
+const devolucoes = computed(() => fichas.value.reduce((sum, item) => sum + Number(item.devolucoes || 0), 0))
+
+function devolver(ficha) {
+  const requested = Number(ficha._devolverCount || 1) || 1
+  const maxAvailable = Number(ficha.quantidade || 0) - Number(ficha.devolucoes || 0)
+  if (maxAvailable <= 0) return
+  const toAdd = Math.min(requested, maxAvailable)
+  ficha.devolucoes = Number(ficha.devolucoes || 0) + toAdd
+  // reset requested count to 1 for convenience
+  ficha._devolverCount = 1
+  saveFichas()
+}
+
+function deleteFicha(ficha) {
+  if (!confirm('Excluir esta ficha de EPI? Esta operação não pode ser desfeita.')) return
+  const idx = fichas.value.findIndex((x) => x.id === ficha.id)
+  if (idx >= 0) {
+    fichas.value.splice(idx, 1)
+    saveFichas()
+  }
+}
 
 onMounted(loadFichas)
 </script>
@@ -82,7 +120,6 @@ onMounted(loadFichas)
 .rastrear-page {
   padding: 1.75rem;
   min-height: 100vh;
-  background: #07100d;
   color: #eef2ee;
 }
 

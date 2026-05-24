@@ -2,80 +2,185 @@
   <main class="perfil-page">
     <section class="perfil-card">
       <div class="perfil-card__header">
-        <div class="perfil-card__avatar">AP</div>
+        <div class="perfil-card__avatar">{{ initials(profile.nome || profile.email || 'U') }}</div>
         <div class="perfil-card__header-info">
           <span class="perfil-card__section">Perfil</span>
-          <h1 class="perfil-card__name">Ana Paula</h1>
-          <p class="perfil-card__role">Professora de Química</p>
+          <h1 class="perfil-card__name">{{ profile.nome || 'Usuário' }}</h1>
+          <p class="perfil-card__role">{{ profile.cargo || 'Sem cargo definido' }}</p>
         </div>
       </div>
 
-      <div class="perfil-card__fields">
+      <div v-if="loading" class="perfil-loading">Carregando perfil...</div>
+
+      <div v-else class="perfil-card__fields">
         <div class="perfil-field">
           <label>Nome</label>
-          <input readonly value="Ana Paula" />
+          <input readonly v-model="profile.nome" placeholder="Informe seu nome" />
         </div>
         <div class="perfil-field">
           <label>Setor</label>
-          <input readonly value="Laboratório" />
+          <input readonly v-model="profile.setor" placeholder="Informe seu setor" />
         </div>
         <div class="perfil-field">
           <label>Cargo</label>
-          <input readonly value="Professora de Química" />
-        </div>
-        <div class="perfil-field">
-          <label>Data de Admissão</label>
-          <input readonly value="10/11/2025" />
+          <input readonly v-model="profile.cargo" placeholder="Informe seu cargo" />
         </div>
         <div class="perfil-field">
           <label>ID</label>
-          <input readonly value="AP0804001" />
+          <input readonly :value="profile.codigo || 'Não definido'" />
         </div>
         <div class="perfil-field">
           <label>Telefone</label>
-          <input readonly value="(19) 90123-4567" />
+          <input readonly v-model="profile.telefone" placeholder="(xx) xxxxx-xxxx" />
         </div>
         <div class="perfil-field">
           <label>Data de Nascimento</label>
-          <input readonly value="08/04/2001" />
+          <input readonly v-model="profile.data_nascimento" type="date" />
         </div>
         <div class="perfil-field">
           <label>E-mail</label>
-          <input readonly value="ana.paula@senaisc.edu.br" />
+          <input readonly v-model="profile.email" type="email" placeholder="seu@email.com" />
         </div>
       </div>
 
-      <div class="perfil-card__actions">
-        <button type="button" class="btn btn-edit">Editar Perfil</button>
-        <button type="button" class="btn btn-delete">Excluir Perfil</button>
-      </div>
+      <div class="perfil-card__message" v-if="message">{{ message }}</div>
+      <div class="perfil-card__error" v-if="errorMessage">{{ errorMessage }}</div>
     </section>
   </main>
 </template>
 
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useSupabase } from '../composables/useSupabase'
+
+const { supabase } = useSupabase()
+const router = useRouter()
+
+const loading = ref(true)
+const message = ref('')
+const errorMessage = ref('')
+const profileRow = ref(null)
+const originalEmail = ref('')
+
+const profile = reactive({
+  nome: '',
+  setor: '',
+  cargo: '',
+  codigo: '',
+  telefone: '',
+  data_nascimento: '',
+  email: ''
+})
+
+function initials(name) {
+  return String(name || '')
+    .split(' ')
+    .map(part => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
+function setMessage(text) {
+  message.value = text
+  errorMessage.value = ''
+}
+
+function setError(text) {
+  errorMessage.value = text
+  message.value = ''
+}
+
+function fillProfile(data) {
+  profile.nome = data.nome || profile.nome
+  profile.setor = data.setor || profile.setor
+  profile.cargo = data.cargo || profile.cargo
+  profile.codigo = data.matricula || data.codigo_funcionario || data.id || profile.codigo
+  profile.telefone = data.telefone || profile.telefone
+  profile.data_nascimento = data.data_nascimento || profile.data_nascimento
+  profile.email = data.email || profile.email
+}
+
+async function loadProfile() {
+  loading.value = true
+  setMessage('')
+  setError('')
+
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError) {
+      throw new Error('Não foi possível obter a sessão.')
+    }
+
+    const user = sessionData?.session?.user
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    profile.email = user.email || ''
+    profile.nome = user.user_metadata?.name || user.user_metadata?.nome || profile.nome
+
+    const { data, error } = await supabase
+      .from('funcionarios')
+      .select('*')
+      .or(`auth_user_id.eq.${user.id},email.eq.${profile.email}`)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('Erro ao buscar dados de funcionário:', error.message)
+    }
+
+    if (data) {
+      profileRow.value = data
+      originalEmail.value = data.email || profile.email
+      fillProfile(profileRow.value)
+    } else {
+      profileRow.value = null
+      setError(
+        'Nenhum funcionário encontrado para este login. Configure um usuário no Auth do Supabase com o mesmo e-mail cadastrado na tabela funcionarios.'
+      )
+    }
+
+    if (!profile.nome && profile.email) {
+      profile.nome = profile.email.split('@')[0]
+    }
+  } catch (err) {
+    setError(err.message || 'Erro ao carregar o perfil.')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Edit and delete operations removed; profile is read-only in the UI
+
+onMounted(loadProfile)
+</script>
+
 <style scoped>
 .perfil-page {
-  min-height: 100vh;
-  padding: 3rem 2rem;
+  min-height: auto;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, rgba(6, 22, 0, 0.95) 0%, rgba(2, 8, 16, 1) 100%);
+  align-items: center; 
+  
 }
 
 .perfil-card {
-  width: min(1100px, 100%);
-  background: rgba(18, 26, 38, 0.96);
+  width: min(1200px, 100%);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 32px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(18px);
-  padding: 2.5rem;
+  backdrop-filter: blur(20px);
+  padding: 2rem;
 }
 
 .perfil-card__header {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 1.8rem;
+  gap: 2rem;
   align-items: center;
   padding-bottom: 1.8rem;
   margin-bottom: 1.8rem;
@@ -109,7 +214,7 @@
 
 .perfil-card__name {
   margin: 0;
-  font-size: clamp(2rem, 2.7vw, 3rem);
+  font-size: 2.5rem;
   color: #fff;
 }
 
@@ -151,6 +256,18 @@
   border-color: rgba(34, 186, 133, 0.9);
 }
 
+.perfil-card__message,
+.perfil-card__error,
+.perfil-loading {
+  margin-top: 1.25rem;
+  color: #dfeee0;
+  font-size: 0.95rem;
+}
+
+.perfil-card__error {
+  color: #f6b5b0;
+}
+
 .perfil-card__actions {
   margin-top: 2rem;
   display: flex;
@@ -159,7 +276,7 @@
 }
 
 .btn {
-  min-width: 170px;
+  min-width: 49.2%;
   border: none;
   border-radius: 14px;
   padding: 1rem 1.45rem;
@@ -174,15 +291,18 @@
 }
 
 .btn-edit {
-  background: #1f642c;
+  background: #0679c5;
   color: #f4f7fb;
-  box-shadow: 0 14px 30px rgba(31, 100, 44, 0.25);
+}
+
+.btn-cancel {
+  background: #53697d;
+  color: #f4f7fb;
 }
 
 .btn-delete {
   background: #c72e39;
   color: #ffffff;
-  box-shadow: 0 14px 30px rgba(199, 46, 57, 0.18);
 }
 
 @media (max-width: 900px) {

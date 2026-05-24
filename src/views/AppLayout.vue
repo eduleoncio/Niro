@@ -7,7 +7,7 @@
                 <RouterLink to="/funcionarios">e
                     Funcionários</RouterLink>
                 <RouterLink to="/entregas">Ô Entregas de EPI</RouterLink>
-                <RouterLink to="/relatorio">¸ Relatório</RouterLink>
+
                 <button @click="sair">Sair</button>
             </nav>
         </aside>
@@ -37,7 +37,7 @@ const routes = [ // Rota pública — sem sidebar
             { path: 'dashboard', component: DashboardView },
             { path: 'funcionarios', component: FuncionariosView },
             { path: 'entregas', component: EntregasView },
-            { path: 'relatorio', component: RelatorioView },]
+        ]
     }]
 // ── NAVIGATION GUARD: bloqueia quem não está logado ──
 router.beforeEach(async (to) => {

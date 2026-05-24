@@ -29,7 +29,6 @@
             <div class="employee-name">{{ emp.name }}</div>
             <div class="employee-role">{{ emp.role }}</div>
           </div>
-          <button class="btn-visit" @click="visitProfile(emp.id)">Visitar Perfil</button>
         </div>
 
         <div v-if="filteredEmployees.length === 0" class="empty">Nenhum funcionário encontrado.</div>
@@ -135,24 +134,20 @@ function initials(name) {
     .join('')
 }
 
-function visitProfile(id) {
-  router.push(`/dashboard/funcionarios/${id}`)
-}
 </script>
 
 <style scoped>
 .funcionarios-page {
-  padding: 1.75rem;
   min-height: 100vh;
   box-sizing: border-box;
 }
 
 .panel {
-  background: #0f1413;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
+  backdrop-filter: blur(15px);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 32px;
   min-height: calc(100vh - 3.5rem);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset;
 }
 
 .panel-header {
@@ -169,7 +164,7 @@ function visitProfile(id) {
 
 .filters-row {
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -179,9 +174,10 @@ function visitProfile(id) {
   border: 1px solid rgba(64,137,60,0.2);
   color: #dfeee0;
   padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
+  width: 14.7rem;
+  border-radius: 32px;
   outline: none;
-  min-width: 10rem;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .btn-clear {
@@ -203,7 +199,7 @@ function visitProfile(id) {
 
 .employee-card {
   background: #0b100f;
-  border-radius: 0.5rem;
+  border-radius: 1.7rem;
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -239,15 +235,6 @@ function visitProfile(id) {
   color: rgba(255,255,255,0.45);
   font-size: 0.875rem;
   text-align: center;
-}
-
-.btn-visit {
-  background: transparent;
-  border: 1px solid rgba(64,137,60,0.9);
-  color: #dfeee0;
-  padding: 0.4rem 0.6rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
 }
 
 .empty {

@@ -48,12 +48,7 @@
         <span class="menu-label">Retirar EPI</span>
       </RouterLink>
 
-      <RouterLink to="/dashboard/relatorios" class="menu-item" active-class="active">
-        <div class="icon-box">
-          <img src="../assets/icon-relatorios.svg" class="menu-icon" />
-        </div>
-        <span class="menu-label">Relatórios</span>
-      </RouterLink>
+
 
       <RouterLink to="/dashboard/funcionarios" class="menu-item" active-class="active">
         <div class="icon-box">

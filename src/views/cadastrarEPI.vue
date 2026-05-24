@@ -48,11 +48,17 @@
                 <div class="upload-icon">+</div>
                 <div>
                     <p>Escolha um arquivo ou arraste e solte aqui</p>
-                    <span>JPEG e PNG aceitos, até 50MB</span>
+                    <span>JPEG, PNG e SVG aceitos, até 50MB</span>
+
+                    <div v-if="localPreviewUrl" class="upload-preview">
+                        <img :src="localPreviewUrl" alt="Preview" />
+                        <div class="image-url-preview">Preview: {{ localPreviewUrl }}</div>
+                    </div>
                 </div>
                 <button type="button" class="btn btn-secondary" @click.stop="triggerFileSelect">Procurar
                     arquivo</button>
-                <input ref="fileInput" type="file" accept="image/png, image/jpeg" @change="handleFileUpload" hidden />
+                <input ref="fileInput" type="file" accept="image/png, image/jpeg, image/svg+xml"
+                    @change="handleFileUpload" hidden />
             </div>
 
             <div class="action-bar">
@@ -72,7 +78,6 @@
                     <p>Edite ou remova itens existentes.</p>
                 </div>
                 <div class="filter-group">
-                    <label>Filtrar por tipo</label>
                     <select v-model="filtroTipo">
                         <option value="">Todos</option>
                         <option v-for="t in tiposExistentes" :key="t" :value="t">{{ t }}</option>
@@ -83,7 +88,8 @@
             <div class="products-grid">
                 <article class="product-card" v-for="e in episFiltrados" :key="e.id">
                     <div class="product-card-top">
-                        <img :src="e.imagem_url || placeholderImage" :alt="e.nome_epi" />
+                        <img :src="normalizeImageUrl(e.imagem_url) || placeholderImage" :alt="e.nome_epi"
+                            @error="onImageError" />
                     </div>
                     <div class="product-card-body">
                         <div class="product-card-title">
@@ -135,11 +141,26 @@ const form = reactive({
 })
 
 const imagemFile = ref(null)
+const localPreviewUrl = ref(null)
 
 const placeholderImage = 'https://via.placeholder.com/300x200?text=Sem+imagem'
 
+const normalizeImageUrl = (url) => {
+    if (!url || typeof url !== 'string') return url
+    return url.replace('/public/epis/', '/public/assets-epis/')
+}
+
 const handleFileUpload = (event) => {
-    imagemFile.value = event.target.files[0]
+    const file = event.target.files[0]
+    if (!file) return
+
+    // revoke previous preview if any
+    if (localPreviewUrl.value) {
+        try { URL.revokeObjectURL(localPreviewUrl.value) } catch (e) { }
+    }
+
+    imagemFile.value = file
+    localPreviewUrl.value = URL.createObjectURL(file)
 }
 
 const triggerFileSelect = () => {
@@ -155,7 +176,12 @@ const carregar = async () => {
         .select('*')
         .order('nome_epi')
 
-    epis.value = data || []
+    epis.value = (data || []).map(item => {
+        if (item && item.imagem_url) {
+            item.imagem_url = normalizeImageUrl(item.imagem_url)
+        }
+        return item
+    })
     carregarTipos()
 }
 
@@ -165,21 +191,33 @@ const salvar = async () => {
 
     if (imagemFile.value) {
         const fileName = `${Date.now()}_${imagemFile.value.name}`
+        const bucket = 'assets-epis'
 
-        const { error } = await supabase.storage
-            .from('assets-epis')
-            .upload(fileName, imagemFile.value)
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from(bucket)
+            .upload(fileName, imagemFile.value, {
+                cacheControl: '3600',
+                upsert: true,
+                contentType: imagemFile.value.type
+            })
 
-        if (error) {
-            console.error(error)
+        if (uploadError) {
+            console.error(`Upload failed on bucket ${bucket}:`, uploadError)
+            alert('Falha ao enviar imagem. Verifique as permissões do bucket de storage e se você está autenticado.')
             return
         }
 
-        const { data } = supabase.storage
-            .from('assets-epis')
+        const { data: publicUrlData, error: publicUrlError } = supabase.storage
+            .from(bucket)
             .getPublicUrl(fileName)
 
-        imageUrl = data.publicUrl
+        if (publicUrlError) {
+            console.error('Erro ao obter URL pública:', publicUrlError)
+            alert('Falha ao obter a URL da imagem. Tente novamente.')
+            return
+        }
+
+        imageUrl = publicUrlData.publicUrl
     }
 
     const dados = {
@@ -249,6 +287,10 @@ const cancelarEdicao = () => {
     })
 
     imagemFile.value = null
+    if (localPreviewUrl.value) {
+        try { URL.revokeObjectURL(localPreviewUrl.value) } catch (e) { }
+        localPreviewUrl.value = null
+    }
 }
 
 const tiposExistentes = ref([])
@@ -256,6 +298,10 @@ const tiposExistentes = ref([])
 const carregarTipos = () => {
     const tipos = epis.value.map(e => e.tipo_epi)
     tiposExistentes.value = [...new Set(tipos)]
+}
+
+const onImageError = (event) => {
+    event.target.src = placeholderImage
 }
 
 const filtroTipo = ref('')
@@ -279,6 +325,7 @@ onMounted(carregar)
     padding: 2rem;
     min-height: 100vh;
     font-family: 'Montserrat', sans-serif;
+
 }
 
 .page-header {
@@ -288,9 +335,10 @@ onMounted(carregar)
     align-items: center;
     margin-bottom: 1.75rem;
     padding: 2rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    backdrop-filter: blur(20px);
 }
 
 .header-left {
@@ -321,12 +369,13 @@ onMounted(carregar)
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 28px;
     padding: 1.75rem;
     margin-bottom: 1.75rem;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    backdrop-filter: blur(20px);
 }
 
 .form-grid {
@@ -348,6 +397,7 @@ onMounted(carregar)
 label {
     color: #c9e3c3;
     font-size: 0.9rem;
+    font-family: 'Montserrat', sans-serif;
 }
 
 input,
@@ -362,11 +412,27 @@ select {
     font-size: 1rem;
     outline: none;
     transition: border-color 0.2s ease, background 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+select {
+    color: #f8fbf5;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+select option {
+    background: #0a1112;
+    color: #f8fbf5;
+}
+
+select:focus option {
+    background: #0a1112;
 }
 
 textarea {
-    min-height: 130px;
+    min-height: 2rem;
     resize: vertical;
+
 }
 
 input:focus,
@@ -437,6 +503,7 @@ textarea::placeholder {
     font-weight: 700;
     padding: 0.95rem 1.5rem;
     transition: transform 0.2s ease, filter 0.2s ease;
+    width: 100%;
 }
 
 .btn:hover {
@@ -444,7 +511,7 @@ textarea::placeholder {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #56d876, #2a8c3f);
+    background: linear-gradient(135deg, #126b28, #2a8c3f);
     color: #fff;
 }
 
@@ -486,15 +553,16 @@ textarea::placeholder {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
 }
 
 .filter-group select {
-    max-width: 240px;
+    max-width: auto;
 }
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem;
 }
 
@@ -505,13 +573,6 @@ textarea::placeholder {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-}
-
-.product-card-top {
-    min-height: 180px;
-    background: rgba(255, 255, 255, 0.03);
-    display: grid;
-    place-items: center;
 }
 
 .product-card-top img {
@@ -633,5 +694,35 @@ textarea::placeholder {
         flex-direction: column;
         align-items: stretch;
     }
+}
+
+.upload-preview {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.upload-preview img {
+    width: 72px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.image-url-preview {
+    font-size: 0.8rem;
+    color: #c9e3c3;
+    max-width: 240px;
+    word-break: break-all;
+}
+
+.image-url {
+    margin-top: 0.5rem;
+    padding: 0 1rem 0.75rem 1rem;
+    font-size: 0.78rem;
+    color: #b9c7ad;
+    word-break: break-all;
 }
 </style>
