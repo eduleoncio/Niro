@@ -49,10 +49,10 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSupabase } from '../composables/useSupabase'
 
 const router = useRouter()
-
-const STORAGE_KEY = 'epi-fichas'
+const { supabase } = useSupabase()
 
 const form = reactive({
     nomeEpi: '',
@@ -63,34 +63,25 @@ const form = reactive({
     descricao: ''
 })
 
-function getFichas() {
-    try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-    } catch {
-        return []
-    }
-}
+async function submitRetirada() {
+    const { error } = await supabase
+        .from('fichas_epi')
+        .insert({
+            nome_epi: form.nomeEpi.trim(),
+            categoria: form.categoria.trim(),
+            quantidade: form.quantidade,
+            data_retirada: form.dataRetirada,
+            nome_responsavel: form.nomeResponsavel.trim(),
+            descricao: form.descricao.trim(),
+            devolucoes: 0
+        })
 
-function saveFicha(ficha) {
-    const fichas = getFichas()
-    fichas.unshift(ficha)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(fichas))
-}
-
-function submitRetirada() {
-    const ficha = {
-        id: Date.now(),
-        nomeEpi: form.nomeEpi.trim(),
-        categoria: form.categoria.trim(),
-        quantidade: form.quantidade,
-        dataRetirada: form.dataRetirada,
-        nomeResponsavel: form.nomeResponsavel.trim(),
-        descricao: form.descricao.trim(),
-        devolucoes: 0,
-        createdAt: new Date().toISOString()
+    if (error) {
+        console.error(error)
+        alert('Erro ao registrar retirada.')
+        return
     }
 
-    saveFicha(ficha)
     router.push('/dashboard/rastrearEPI')
 }
 </script>

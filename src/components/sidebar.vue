@@ -110,6 +110,7 @@ function toggleSidebar() {
 </script>
 
 <style scoped>
+
 .logo {
   display: flex;
   justify-content: center;
@@ -185,10 +186,10 @@ function toggleSidebar() {
 .menu {
   text-align: start;
   justify-content: center;
-  margin-top: 1.875rem;
+  margin-top: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .menu-item {
@@ -248,7 +249,7 @@ function toggleSidebar() {
   justify-content: center;
   display: flex;
   width: 100%;
-  margin-top: 4.2rem;
+  margin-top: 7rem;
 }
 
 .sidebar--collapsed .botao-sair {

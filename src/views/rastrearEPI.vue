@@ -25,6 +25,9 @@
           <h3>{{ f.nomeResponsavel }}</h3>
           <p class="ficha-role">Retirou: {{ f.nomeEpi }}</p>
           <p class="ficha-description">{{ f.categoria }} · {{ f.quantidade }} unidade(s)</p>
+          <p class="ficha-observacao" v-if="f.descricao">
+            <strong>Observações:</strong> {{ f.descricao }}
+          </p>
           <div class="ficha-data">
             <span>Data de Retirada</span>
             <strong>{{ formatDate(f.dataRetirada) }}</strong>
@@ -39,14 +42,16 @@
               <strong>{{ f.devolucoes || 0 }}</strong>
             </div>
           </div>
-          <div style="display:flex;gap:0.5rem;align-items:center">
+          <div class="ficha-actions">
             <input type="number" class="devolver-input" v-model.number="f._devolverCount" :min="1"
               :max="Math.max(1, (f.quantidade || 0) - (f.devolucoes || 0))" />
             <button class="ficha-button" @click="devolver(f)"
               :disabled="(f.quantidade || 0) - (f.devolucoes || 0) <= 0">Devolver EPI</button>
             <button class="ficha-button" @click="deleteFicha(f)"
               style="background:rgba(200,40,40,0.95)">Excluir</button>
-            <button class="ficha-button">Gerar PDF</button>
+            <button class="ficha-button" @click="gerarPDF(f)">
+              Gerar PDF
+            </button>
           </div>
         </article>
       </div>
@@ -57,60 +62,141 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useSupabase } from '../composables/useSupabase'
+import jsPDF from 'jspdf'
 
-const STORAGE_KEY = 'epi-fichas'
 const fichas = ref([])
+const { supabase } = useSupabase()
 
-function loadFichas() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-    fichas.value = raw.map((f) => ({
-      ...f,
-      devolucoes: Number(f.devolucoes || 0),
-      _devolverCount: Number(f._devolverCount || 1)
-    }))
-  } catch {
-    fichas.value = []
+async function loadFichas() {
+  const { data, error } = await supabase
+    .from('fichas_epi')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error(error)
+    return
   }
-}
 
-function saveFichas() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(fichas.value))
+  fichas.value = data.map(f => ({
+    id: f.id,
+    nomeEpi: f.nome_epi,
+    categoria: f.categoria,
+    quantidade: f.quantidade,
+    dataRetirada: f.data_retirada,
+    nomeResponsavel: f.nome_responsavel,
+    descricao: f.descricao,
+    devolucoes: f.devolucoes,
+    _devolverCount: 1
+  }))
 }
 
 function initials(name) {
-  return (name || '').split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase()
+  return (name || '')
+    .split(' ')
+    .map(p => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 }
 
 function formatDate(value) {
   if (!value) return '-'
-  const date = new Date(value)
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+  return new Date(value).toLocaleDateString('pt-BR')
 }
 
-const totalEpis = computed(() => fichas.value.reduce((sum, item) => sum + Number(item.quantidade || 0), 0))
-const totalResponsaveis = computed(() => new Set(fichas.value.map((item) => item.nomeResponsavel)).size)
+const totalEpis = computed(() =>
+  fichas.value.reduce(
+    (sum, item) => sum + Number(item.quantidade || 0),
+    0
+  )
+)
 
-const devolucoes = computed(() => fichas.value.reduce((sum, item) => sum + Number(item.devolucoes || 0), 0))
+const devolucoes = computed(() =>
+  fichas.value.reduce(
+    (sum, item) => sum + Number(item.devolucoes || 0),
+    0
+  )
+)
 
-function devolver(ficha) {
-  const requested = Number(ficha._devolverCount || 1) || 1
-  const maxAvailable = Number(ficha.quantidade || 0) - Number(ficha.devolucoes || 0)
+const totalResponsaveis = computed(() =>
+  new Set(
+    fichas.value.map(i => i.nomeResponsavel)
+  ).size
+)
+
+async function devolver(ficha) {
+  const requested = Number(ficha._devolverCount || 1)
+  const maxAvailable =
+    ficha.quantidade - ficha.devolucoes
+
   if (maxAvailable <= 0) return
-  const toAdd = Math.min(requested, maxAvailable)
-  ficha.devolucoes = Number(ficha.devolucoes || 0) + toAdd
-  // reset requested count to 1 for convenience
+
+  const novaQtd =
+    ficha.devolucoes +
+    Math.min(requested, maxAvailable)
+
+  const { error } = await supabase
+    .from('fichas_epi')
+    .update({
+      devolucoes: novaQtd
+    })
+    .eq('id', ficha.id)
+
+  if (error) {
+    console.error(error)
+    return
+  }
+
+  ficha.devolucoes = novaQtd
   ficha._devolverCount = 1
-  saveFichas()
 }
 
-function deleteFicha(ficha) {
-  if (!confirm('Excluir esta ficha de EPI? Esta operação não pode ser desfeita.')) return
-  const idx = fichas.value.findIndex((x) => x.id === ficha.id)
-  if (idx >= 0) {
-    fichas.value.splice(idx, 1)
-    saveFichas()
+async function deleteFicha(ficha) {
+  if (!confirm('Excluir esta ficha?')) return
+
+  const { error } = await supabase
+    .from('fichas_epi')
+    .delete()
+    .eq('id', ficha.id)
+
+  if (error) {
+    console.error(error)
+    return
   }
+
+  fichas.value = fichas.value.filter(
+    f => f.id !== ficha.id
+  )
+}
+
+function gerarPDF(ficha) {
+  const pdf = new jsPDF()
+
+  pdf.setFont('helvetica', 'bold')
+  pdf.setFontSize(18)
+  pdf.text('Ficha de Retirada de EPI', 20, 20)
+
+  pdf.setFont('helvetica', 'normal')
+  pdf.setFontSize(12)
+
+  pdf.text(`Responsável: ${ficha.nomeResponsavel}`, 20, 40)
+  pdf.text(`EPI: ${ficha.nomeEpi}`, 20, 50)
+  pdf.text(`Categoria: ${ficha.categoria}`, 20, 60)
+  pdf.text(`Quantidade: ${ficha.quantidade}`, 20, 70)
+  pdf.text(`Data de Retirada: ${formatDate(ficha.dataRetirada)}`, 20, 80)
+  pdf.text(`Devoluções: ${ficha.devolucoes || 0}`, 20, 90)
+
+  pdf.text('Observações:', 20, 105)
+
+  const texto = ficha.descricao || 'Nenhuma observação.'
+  const linhas = pdf.splitTextToSize(texto, 170)
+
+  pdf.text(linhas, 20, 115)
+
+  pdf.save(`ficha-epi-${ficha.id}.pdf`)
 }
 
 onMounted(loadFichas)
@@ -178,6 +264,7 @@ onMounted(loadFichas)
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 20rem;
 }
 
 .ficha-avatar {
@@ -232,6 +319,18 @@ onMounted(loadFichas)
   color: #d2f0d3;
 }
 
+.ficha-observacao {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid #4aed6d;
+}
+
+/* todos os botões iguais */
 .ficha-button {
   border: none;
   border-radius: 0.85rem;
@@ -239,12 +338,37 @@ onMounted(loadFichas)
   color: #fff;
   background: rgba(52, 121, 64, 0.95);
   cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+/* botão excluir vermelho */
+.ficha-button.excluir {
+  background: rgba(200, 40, 40, 0.95);
 }
 
 .empty-state {
   color: rgba(255, 255, 255, 0.5);
   padding: 2rem 0;
   text-align: center;
+}
+
+.ficha-actions {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* contador ocupa a primeira coluna */
+.devolver-input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f3f7f2;
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {

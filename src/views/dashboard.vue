@@ -138,36 +138,17 @@ onMounted(async () => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const isoStart = today.toISOString()
-    const movementTables = ['movimentacoes', 'movimentacao', 'retiradas', 'entregas']
-    for (const t of movementTables) {
-      try {
-        const resp = await supabase.from(t).select('id', { count: 'exact' }).gte('created_at', isoStart)
-        if (!resp.error && resp.count != null) {
-          retiradosHoje.value = resp.count
-          break
-        }
-      } catch (e) {
-        // table or column may not exist — ignore and try next
-      }
+
+    // contar retiradas de hoje
+    const { count, error: retiradaError } = await supabase
+      .from('fichas_epi')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', isoStart)
+
+    if (!retiradaError) {
+      retiradosHoje.value = count || 0
     }
 
-    // also check localStorage fallback used by RetirarEPI view
-    try {
-      const local = localStorage.getItem('epi-fichas')
-      if (local) {
-        const fichas = JSON.parse(local)
-        const localCount = (fichas || []).filter(f => {
-          if (!f.createdAt) return false
-          try {
-            const d = new Date(f.createdAt)
-            return d >= new Date(isoStart)
-          } catch { return false }
-        }).length
-        retiradosHoje.value = (retiradosHoje.value || 0) + localCount
-      }
-    } catch (e) {
-      // ignore localStorage errors
-    }
 
   } catch (err) {
     console.error('Erro ao carregar dashboard:', err)
