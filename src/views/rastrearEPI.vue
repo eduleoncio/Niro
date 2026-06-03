@@ -207,6 +207,7 @@ onMounted(loadFichas)
   padding: 1.75rem;
   min-height: 100vh;
   color: #eef2ee;
+  box-sizing: border-box;
 }
 
 .rastrear-topbar {
@@ -231,7 +232,7 @@ onMounted(loadFichas)
 
 .stat-card--green strong {
   color: #4aed6d;
-  font-size: 2.75rem;
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
 }
 
 .stat-card span {
@@ -252,10 +253,11 @@ onMounted(loadFichas)
 
 .fichas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
   gap: 1rem;
 }
 
+/* width fixo removido — era o principal culpado */
 .ficha-card {
   padding: 1.25rem;
   border-radius: 1rem;
@@ -264,7 +266,8 @@ onMounted(loadFichas)
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 20rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ficha-avatar {
@@ -277,6 +280,7 @@ onMounted(loadFichas)
   place-items: center;
   font-weight: 700;
   font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .ficha-card h3 {
@@ -288,6 +292,7 @@ onMounted(loadFichas)
 .ficha-description,
 .ficha-data span {
   color: rgba(255, 255, 255, 0.65);
+  margin: 0;
 }
 
 .ficha-description {
@@ -313,6 +318,7 @@ onMounted(loadFichas)
 .ficha-meta span {
   display: block;
   font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .ficha-meta strong {
@@ -330,7 +336,24 @@ onMounted(loadFichas)
   border-left: 3px solid #4aed6d;
 }
 
-/* todos os botões iguais */
+.ficha-actions {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.devolver-input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f3f7f2;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
 .ficha-button {
   border: none;
   border-radius: 0.85rem;
@@ -340,11 +363,21 @@ onMounted(loadFichas)
   cursor: pointer;
   width: 100%;
   text-align: center;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  font-size: 0.95rem;
 }
 
-/* botão excluir vermelho */
-.ficha-button.excluir {
-  background: rgba(200, 40, 40, 0.95);
+.ficha-button:hover {
+  opacity: 0.88;
+}
+
+.ficha-button:active {
+  transform: scale(0.97);
+}
+
+.ficha-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .empty-state {
@@ -353,29 +386,35 @@ onMounted(loadFichas)
   text-align: center;
 }
 
-.ficha-actions {
-  margin-top: auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
+/* ─── BREAKPOINTS ─────────────────────────────────────── */
 
-/* contador ocupa a primeira coluna */
-.devolver-input {
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: #f3f7f2;
-  box-sizing: border-box;
-}
-
+/* Tablet (≤ 900px) */
 @media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-  .stats-grid,
   .fichas-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile (≤ 600px) */
+@media (max-width: 600px) {
+  .rastrear-page {
+    padding: 1rem;
+  }
+
+  .fichas-panel {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ficha-actions {
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>

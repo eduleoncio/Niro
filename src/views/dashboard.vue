@@ -166,10 +166,18 @@ onMounted(async () => {
 
 .conteudo {
   flex: 1;
-  margin-left: 250px;
+  margin-left: 80px;
   padding: 30px;
   color: #f4f7f1;
+  transition: margin-left 0.3s ease;
+  min-width: 0;
 }
+
+.conteudo--expanded {
+  margin-left: 250px;
+}
+
+/* ─── HEADER ─────────────────────────────────────────── */
 
 .dashboard-header {
   display: flex;
@@ -179,10 +187,9 @@ onMounted(async () => {
   margin-bottom: 2rem;
 }
 
-
 .dashboard-header h1 {
   margin: 0;
-  font-size: clamp(2rem, 2.5vw, 3rem);
+  font-size: clamp(1.5rem, 2.5vw, 3rem);
 }
 
 .status-pill {
@@ -192,7 +199,10 @@ onMounted(async () => {
   color: #c7f7b8;
   padding: 0.75rem 1rem;
   font-size: 0.95rem;
+  white-space: nowrap;
 }
+
+/* ─── STAT GRID ───────────────────────────────────────── */
 
 .stat-grid {
   display: grid;
@@ -255,6 +265,8 @@ onMounted(async () => {
   background: linear-gradient(180deg, rgba(40, 25, 52, 0.92) 0%, rgba(9, 15, 13, 0.9) 100%);
 }
 
+/* ─── CHARTS ──────────────────────────────────────────── */
+
 .charts-grid {
   display: grid;
   grid-template-columns: 2fr 1.2fr;
@@ -294,61 +306,6 @@ onMounted(async () => {
   font-size: 0.95rem;
 }
 
-@media (max-width: 1200px) {
-  .stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 900px) {
-  .conteudo {
-    padding: 20px;
-    margin-left: 0;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .status-pill {
-    width: fit-content;
-    align-self: flex-start;
-  }
-
-  .stat-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-card {
-    min-height: auto;
-  }
-}
-
-@media (max-width: 600px) {
-  .dashboard-header h1 {
-    font-size: 2rem;
-  }
-
-  .status-pill {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .chart-card {
-    padding: 1rem;
-  }
-
-  .stat-card {
-    padding: 1.25rem;
-  }
-}
-
-
 .chip {
   background: rgba(126, 213, 111, 0.12);
   border: 1px solid rgba(126, 213, 111, 0.22);
@@ -356,7 +313,10 @@ onMounted(async () => {
   border-radius: 999px;
   padding: 0.5rem 0.9rem;
   font-size: 0.8rem;
+  white-space: nowrap;
 }
+
+/* ─── BAR CHART ───────────────────────────────────────── */
 
 .bar-chart {
   display: grid;
@@ -389,6 +349,8 @@ onMounted(async () => {
   border-radius: 999px;
 }
 
+/* ─── PRICE LIST ──────────────────────────────────────── */
+
 .price-list {
   display: grid;
   gap: 1rem;
@@ -420,7 +382,17 @@ onMounted(async () => {
   color: #a0b194;
 }
 
-@media (max-width: 1200px) {
+/* ─── BREAKPOINTS ─────────────────────────────────────── */
+
+/* Tablet largo (≤ 1400px) — sidebar comprime o espaço */
+@media (max-width: 1400px) {
+  .stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Tablet (≤ 1100px) */
+@media (max-width: 1100px) {
   .stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -428,16 +400,26 @@ onMounted(async () => {
   .charts-grid {
     grid-template-columns: 1fr;
   }
+
+  .chart-card {
+    min-height: auto;
+  }
 }
 
-@media (max-width: 760px) {
-  .conteudo {
-    padding: 20px;
-    margin-left: 0;
-  }
-
+/* Mobile grande (≤ 768px) */
+@media (max-width: 768px) {
   .shell {
     flex-direction: column;
+  }
+
+  .conteudo,
+  .conteudo--expanded {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dashboard-header {
@@ -445,8 +427,36 @@ onMounted(async () => {
     align-items: stretch;
   }
 
+  .status-pill {
+    width: fit-content;
+  }
+
+  .chart-card {
+    padding: 1rem;
+  }
+}
+
+/* Mobile pequeno (≤ 480px) */
+@media (max-width: 480px) {
   .stat-grid {
     grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+    min-height: auto;
+  }
+
+  .chart-card__header {
+    flex-wrap: wrap;
+  }
+
+  .chart-card__header h2 {
+    font-size: 1.1rem;
+  }
+
+  .price-item {
+    padding: 0.75rem;
   }
 }
 </style>

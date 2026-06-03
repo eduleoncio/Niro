@@ -13,9 +13,9 @@
     </h1>
 
     <p class="paragrafo">
-      Niro é um sistema de controle de estoque de EPIs que centraliza a gestão dos equipamentos de <br> proteção de
-      forma simples e segura. Ao substituir controles em papel por uma solução digital,<br> sua empresa evita
-      perdas de registros e gastos desnecessários com reposições.
+      Niro é um sistema de controle de estoque de EPIs que centraliza a gestão dos equipamentos de
+      proteção de forma simples e segura. Ao substituir controles em papel por uma solução digital,
+      sua empresa evita perdas de registros e gastos desnecessários com reposições.
     </p>
 
     <div class="buttons">
@@ -159,19 +159,18 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
+/* ─── PAGE 1 ─────────────────────────────────────────── */
+
 .page {
   min-height: 100vh;
   position: relative;
   overflow: visible;
-  padding-top: 5rem;
+  padding: 5rem 1.5rem 3rem;
   background: url('../assets/background-inicio.svg') no-repeat top center;
-  background-repeat: no-repeat;
   background-size: 100%;
 }
 
 .texto_principal {
-  display: flex;
-  text-align: start;
   background: -webkit-linear-gradient(#ffffff, #92FFB6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -179,20 +178,20 @@ export default {
   font-size: 4.5rem;
   font-family: "Poppins", sans-serif;
   font-weight: 600;
-  line-height: 4rem;
-  align-items: center;
-  justify-content: center;
+  line-height: 1.1;
   text-align: center;
 }
 
 .paragrafo {
-  display: flex;
   text-align: center;
   margin-top: 2rem;
-  justify-content: center;
   font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-size: 1rem;
+  line-height: 1.7;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .buttons {
@@ -200,6 +199,7 @@ export default {
   justify-content: center;
   gap: 1rem;
   margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 .button_demonstration {
@@ -243,52 +243,12 @@ export default {
   margin-top: 2rem;
 }
 
-
-
-/* RESPONSIVO */
-@media (max-width: 768px) {
-
-  .navbar {
-    grid-template-columns: auto auto;
-  }
-
-  /* mostra hamburguer */
-  .menu_toggle {
-    display: block;
-    justify-self: end;
-  }
-
-  /* menu vira dropdown */
-  .menu_principal {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    display: none;
-    flex-direction: column;
-    padding: 2rem 0;
-  }
-
-  .menu_principal.ativo {
-    display: flex;
-  }
-
-  .links_navbar {
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-  }
-}
+/* ─── PAGE 2 ─────────────────────────────────────────── */
 
 .page2 {
   min-height: 100vh;
-  background-color: #061600;
   background: linear-gradient(180deg, #061600 0%, #00100A 100%);
-  background-repeat: no-repeat, no-repeat;
-  background-position: top center, center;
-  background-size: 100%, cover;
-  padding: 0rem 0rem 3rem 0rem;
+  padding: 0 1.5rem 3rem;
 }
 
 .funcionalidades-text {
@@ -298,6 +258,7 @@ export default {
   justify-content: center;
   text-align: center;
   margin-top: 4rem;
+  padding: 0 1rem;
 }
 
 .title-page2 {
@@ -312,26 +273,32 @@ export default {
 .paragraph-page2 {
   font-family: "Poppins", sans-serif;
   font-weight: 300;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   margin-top: 1rem;
+  line-height: 1.7;
+  max-width: 640px;
 }
 
 .cards-funcionalidades-page2 {
-  display: inline-block;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 1.5rem;
   margin-top: 3rem;
-  text-align: center;
-
 }
+
+.cards-funcionalidades-page2 img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ─── PAGE 3 ─────────────────────────────────────────── */
 
 .page3 {
   min-height: 100vh;
-  background-color: #061600;
-  background-size: 100%, cover;
-  background: url(../assets/backgroun-page3.svg);
-  background-repeat: no-repeat;
-  background-position: top center;
+  background: url('../assets/backgroun-page3.svg') no-repeat top center;
   background-size: cover;
+  padding: 0 1.5rem 3rem;
 }
 
 .telas-text {
@@ -341,6 +308,7 @@ export default {
   justify-content: center;
   text-align: center;
   margin-top: 3rem;
+  padding: 0 1rem;
 }
 
 .title-page3 {
@@ -355,8 +323,10 @@ export default {
 .paragraph-page3 {
   font-family: "Poppins", sans-serif;
   font-weight: 300;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   margin-top: 1rem;
+  line-height: 1.7;
+  max-width: 560px;
 }
 
 .screens {
@@ -367,12 +337,17 @@ export default {
 #sceens-page3 {
   width: 80%;
   margin-top: 2rem;
+  max-width: 100%;
+  height: auto;
 }
+
+/* ─── FOOTER ─────────────────────────────────────────── */
 
 .site-footer {
   background-color: #010c04;
   padding: 3rem 2rem 2rem;
   margin-top: 2rem;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .footer-inner {
@@ -394,7 +369,6 @@ export default {
   font-weight: 600;
   margin: 0 0 1rem;
   color: rgba(107, 106, 106, 0.72);
-  text-decoration: none;
 }
 
 .footer-link {
@@ -403,7 +377,7 @@ export default {
   transition: color 0.3s;
 }
 
-.footer-block a:hover {
+.footer-block a:hover .footer-link {
   color: #b6f5d9;
 }
 
@@ -426,11 +400,84 @@ export default {
   margin-left: 2rem;
 }
 
-.site-footer {
-  font-family: 'Montserrat', sans-serif;
+/* ─── BREAKPOINTS ────────────────────────────────────── */
+
+/* Tablet (≤ 1024px) */
+@media (max-width: 1024px) {
+  .texto_principal {
+    font-size: 3.5rem;
+  }
+
+  .title-page2,
+  .title-page3 {
+    font-size: 2rem;
+  }
+
+  #window_stock {
+    width: 85%;
+  }
+
+  #sceens-page3 {
+    width: 90%;
+  }
 }
 
-@media (max-width: 900px) {
+/* Mobile grande (≤ 768px) */
+@media (max-width: 768px) {
+  .texto_principal {
+    font-size: 2.6rem;
+    line-height: 1.15;
+    margin-top: 3rem;
+  }
+
+  .paragrafo {
+    font-size: 0.95rem;
+  }
+
+  .title-page2,
+  .title-page3 {
+    font-size: 1.75rem;
+  }
+
+  #window_stock {
+    width: 95%;
+  }
+
+  #sceens-page3 {
+    width: 95%;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-logo {
+    margin-left: 0;
+  }
+}
+
+/* Mobile pequeno (≤ 480px) */
+@media (max-width: 480px) {
+  .texto_principal {
+    font-size: 2rem;
+  }
+
+  .buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button_account,
+  .button_demonstration {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .title-page2,
+  .title-page3 {
+    font-size: 1.5rem;
+  }
+
   .footer-inner {
     grid-template-columns: 1fr;
   }

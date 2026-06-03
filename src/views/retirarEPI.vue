@@ -88,105 +88,140 @@ async function submitRetirada() {
 
 <style scoped>
 .retirar-page {
-    padding: 1.2rem;
-    min-height: auto;
-    box-sizing: border-box;
+  padding: 1.2rem;
+  min-height: auto;
+  box-sizing: border-box;
 }
 
 .retirar-panel {
-    max-width: 68rem;
-    margin: 0 auto;
-    padding: 2rem;
-    border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 32px;
-    backdrop-filter: blur(20px);
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  backdrop-filter: blur(20px);
 }
 
 .retirar-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
 }
 
 .subtitle {
-    margin: 0;
-    color: #7c9c7c;
-    font-size: 0.95rem;
+  margin: 0;
+  color: #7c9c7c;
+  font-size: 0.95rem;
 }
 
 .retirar-header h1 {
-    margin: 0;
-    color: #f7faf6;
-    font-size: 1.8rem;
+  margin: 0;
+  color: #f7faf6;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  line-height: 1.3;
 }
 
 .retirar-form {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    font-family: 'Montserrat', sans-serif;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .field-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .field-card--full {
-    grid-column: 1 / -1;
+  grid-column: 1 / -1;
 }
 
 .field-card label {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.95rem;
 }
 
 .field-card input,
 .field-card textarea {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #f3f7f2;
-    padding: 1rem;
-    border-radius: 1rem;
-    outline: none;
-    font-family: 'Montserrat', sans-serif;
-
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f3f7f2;
+  padding: 1rem;
+  border-radius: 1rem;
+  outline: none;
+  font-family: 'Montserrat', sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1rem;
 }
 
 .field-card input::placeholder,
 .field-card textarea::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.field-card input:focus,
+.field-card textarea:focus {
+  border-color: rgba(126, 213, 111, 0.7);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .field-card textarea {
-    min-height: 5rem;
-    resize: vertical;
+  min-height: 5rem;
+  resize: vertical;
 }
 
 .submit-button {
-    grid-column: 1 / -1;
-    margin-top: 0.5rem;
-    padding: 1rem 1.5rem;
-    background: #2aa240;
-    color: #fff;
-    border: none;
-    border-radius: 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s ease;
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: #2aa240;
+  color: #fff;
+  border: none;
+  border-radius: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .submit-button:hover {
-    background: #249537;
+  background: #249537;
 }
 
+.submit-button:active {
+  transform: scale(0.98);
+}
+
+/* ─── BREAKPOINTS ─────────────────────────────────────── */
+
+/* Tablet (≤ 900px) */
 @media (max-width: 900px) {
-    .retirar-form {
-        grid-template-columns: 1fr;
-    }
+  .retirar-panel {
+    padding: 1.5rem;
+  }
+}
+
+/* Mobile (≤ 600px) */
+@media (max-width: 600px) {
+  .retirar-page {
+    padding: 0.75rem;
+  }
+
+  .retirar-panel {
+    padding: 1.25rem;
+    border-radius: 20px;
+  }
+
+  .retirar-form {
+    grid-template-columns: 1fr;
+  }
+
+  .retirar-header {
+    margin-bottom: 1.5rem;
+  }
 }
 </style>
