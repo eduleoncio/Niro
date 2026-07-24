@@ -4,8 +4,8 @@
         <!-- ── SIDEBAR: menu lateral fixo ── -->
         <aside class="sidebar">
             <nav>
-                <RouterLink to="/funcionarios">e
-                    Funcionários</RouterLink>
+                <RouterLink to="/historico">e
+                    Histórico</RouterLink>
                 <RouterLink to="/entregas">Ô Entregas de EPI</RouterLink>
 
                 <button @click="sair">Sair</button>

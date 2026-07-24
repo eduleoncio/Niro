@@ -1,49 +1,48 @@
 <template>
-    <section class="retirar-page">
-        <div class="retirar-panel">
-            <header class="retirar-header">
-                <div>
-                    <p class="subtitle">Informações da Retirada</p>
-                    <h1>Preencha todos os campos obrigatórios</h1>
-                </div>
-            </header>
-
-            <form class="retirar-form" @submit.prevent="submitRetirada">
-                <div class="field-card">
-                    <label>Nome do EPI</label>
-                    <input v-model="form.nomeEpi" type="text" placeholder="Nome do EPI" required />
-                </div>
-
-                <div class="field-card">
-                    <label>Categoria</label>
-                    <input v-model="form.categoria" type="text" placeholder="Categoria" required />
-                </div>
-
-                <div class="field-card">
-                    <label>Quantidade</label>
-                    <input v-model.number="form.quantidade" type="number" min="1" placeholder="Quantidade" required />
-                </div>
-
-                <div class="field-card">
-                    <label>Data de Retirada</label>
-                    <input v-model="form.dataRetirada" type="date" required />
-                </div>
-
-                <div class="field-card field-card--full">
-                    <label>Nome do funcionário/aluno</label>
-                    <input v-model="form.nomeResponsavel" type="text" placeholder="Nome do funcionário/aluno"
-                        required />
-                </div>
-
-                <div class="field-card field-card--full">
-                    <label>Descrição/Observações</label>
-                    <textarea v-model="form.descricao" placeholder="Descrição/Observações"></textarea>
-                </div>
-
-                <button type="submit" class="submit-button">Retirar EPI</button>
-            </form>
+  <section class="retirar-page">
+    <div class="retirar-panel">
+      <header class="retirar-header">
+        <div>
+          <p class="subtitle">Informações da Retirada</p>
+          <h1>Preencha todos os campos obrigatórios</h1>
         </div>
-    </section>
+      </header>
+
+      <form class="retirar-form" @submit.prevent="submitRetirada">
+        <div class="field-card">
+          <label>Nome do EPI</label>
+          <input v-model="form.nomeEpi" type="text" placeholder="Nome do EPI" required />
+        </div>
+
+        <div class="field-card">
+          <label>Categoria</label>
+          <input v-model="form.categoria" type="text" placeholder="Categoria" required />
+        </div>
+
+        <div class="field-card">
+          <label>Quantidade</label>
+          <input v-model.number="form.quantidade" type="number" min="1" placeholder="Quantidade" required />
+        </div>
+
+        <div class="field-card">
+          <label>Data de Retirada</label>
+          <input v-model="form.dataRetirada" type="date" required />
+        </div>
+
+        <div class="field-card field-card--full">
+          <label>Nome do funcionário/aluno</label>
+          <input v-model="form.nomeResponsavel" type="text" placeholder="Nome do funcionário/aluno" required />
+        </div>
+
+        <div class="field-card field-card--full">
+          <label>Descrição/Observações</label>
+          <textarea v-model="form.descricao" placeholder="Descrição/Observações"></textarea>
+        </div>
+
+        <button type="submit" class="submit-button">Retirar EPI</button>
+      </form>
+    </div>
+  </section>
 </template>
 
 <script setup>
@@ -55,34 +54,34 @@ const router = useRouter()
 const { supabase } = useSupabase()
 
 const form = reactive({
-    nomeEpi: '',
-    categoria: '',
-    quantidade: 1,
-    dataRetirada: '',
-    nomeResponsavel: '',
-    descricao: ''
+  nomeEpi: '',
+  categoria: '',
+  quantidade: 1,
+  dataRetirada: '',
+  nomeResponsavel: '',
+  descricao: ''
 })
 
 async function submitRetirada() {
-    const { error } = await supabase
-        .from('fichas_epi')
-        .insert({
-            nome_epi: form.nomeEpi.trim(),
-            categoria: form.categoria.trim(),
-            quantidade: form.quantidade,
-            data_retirada: form.dataRetirada,
-            nome_responsavel: form.nomeResponsavel.trim(),
-            descricao: form.descricao.trim(),
-            devolucoes: 0
-        })
+  const { error } = await supabase
+    .from('fichas_epi')
+    .insert({
+      nome_epi: form.nomeEpi.trim(),
+      categoria: form.categoria.trim(),
+      quantidade: form.quantidade,
+      data_retirada: form.dataRetirada,
+      nome_responsavel: form.nomeResponsavel.trim(),
+      descricao: form.descricao.trim(),
+      devolucoes: 0
+    })
 
-    if (error) {
-        console.error(error)
-        alert('Erro ao registrar retirada.')
-        return
-    }
+  if (error) {
+    console.error(error)
+    alert('Erro ao registrar retirada.')
+    return
+  }
 
-    router.push('/dashboard/rastrearEPI')
+  router.push('/dashboard/lancamentos')
 }
 </script>
 
@@ -196,7 +195,6 @@ async function submitRetirada() {
   transform: scale(0.98);
 }
 
-/* ─── BREAKPOINTS ─────────────────────────────────────── */
 
 /* Tablet (≤ 900px) */
 @media (max-width: 900px) {

@@ -321,7 +321,6 @@ onMounted(carregar)
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-/* ─── LAYOUT ──────────────────────────────────────────── */
 
 .layout-container {
   padding: 2rem;
@@ -329,7 +328,6 @@ onMounted(carregar)
   font-family: 'Montserrat', sans-serif;
 }
 
-/* ─── HEADER ──────────────────────────────────────────── */
 
 .page-header {
   display: flex;
@@ -378,7 +376,6 @@ onMounted(carregar)
   flex-shrink: 0;
 }
 
-/* ─── CARD BASE ───────────────────────────────────────── */
 
 .card {
   padding: 1.75rem;
@@ -390,7 +387,6 @@ onMounted(carregar)
   backdrop-filter: blur(20px);
 }
 
-/* ─── FORM ────────────────────────────────────────────── */
 
 .form-grid {
   display: grid;
@@ -457,7 +453,6 @@ textarea::placeholder {
   color: rgba(255, 255, 255, 0.45);
 }
 
-/* ─── UPLOAD ──────────────────────────────────────────── */
 
 .upload-panel {
   margin-top: 1.5rem;
@@ -525,7 +520,6 @@ textarea::placeholder {
   word-break: break-all;
 }
 
-/* ─── ACTION BAR ──────────────────────────────────────── */
 
 .action-bar {
   margin-top: 1.75rem;
@@ -565,7 +559,6 @@ textarea::placeholder {
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* ─── LIST ────────────────────────────────────────────── */
 
 .card-list {
   padding-top: 1rem;
@@ -596,7 +589,6 @@ textarea::placeholder {
   gap: 0.5rem;
 }
 
-/* ─── PRODUCTS GRID ───────────────────────────────────── */
 
 .products-grid {
   display: grid;
@@ -690,7 +682,6 @@ textarea::placeholder {
   color: #f3b1b5;
 }
 
-/* ─── EMPTY STATE ─────────────────────────────────────── */
 
 .empty-state {
   padding: 2rem;
@@ -708,9 +699,7 @@ textarea::placeholder {
   word-break: break-all;
 }
 
-/* ─── BREAKPOINTS ─────────────────────────────────────── */
 
-/* Tablet largo (≤ 1200px) */
 @media (max-width: 1200px) {
   .form-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -721,7 +710,6 @@ textarea::placeholder {
   }
 }
 
-/* Tablet (≤ 900px) */
 @media (max-width: 900px) {
   .layout-container {
     padding: 1.25rem;
