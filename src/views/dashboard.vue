@@ -3,150 +3,80 @@
     <Sidebar v-model:collapsed="isSidebarCollapsed" />
 
     <main class="conteudo" :style="{ marginLeft: isSidebarCollapsed ? '80px' : '250px' }">
+      <section class="dashboard-top" v-if="isDashboardRoot">
 
-      <section v-if="isDashboardRoot" class="dash-content">
+        <div class="stat-grid">
+          <article class="stat-card stat-card--green">
+            <span class="stat-label">EPIs cadastrados</span>
+            <strong>{{ totalEPIs }}</strong>
+            <small>Total de itens no sistema</small>
+          </article>
 
-        <div v-if="!session" class="access-gate">A
-          <p class="eyebrow">Acesso restrito</p>
-          <h2>Você precisa estar logado para ver esta página.</h2>
-          <RouterLink class="btn btn--primary" to="/login">Ir para o login</RouterLink>
+          <article class="stat-card stat-card--orange">
+            <span class="stat-label">EPIs retirados hoje</span>
+            <strong>{{ retiradosHoje }}</strong>
+            <small>Movimentação do dia</small>
+          </article>
+
+          <article class="stat-card stat-card--red">
+            <span class="stat-label">EPIs sem estoque</span>
+            <strong>{{ semEstoque }}</strong>
+            <small>Produtos críticos</small>
+          </article>
+
+          <article class="stat-card stat-card--blue">
+            <span class="stat-label">Maior quantidade</span>
+            <strong>{{ maiorQuantidadeNome || '—' }}</strong>
+            <small>EPI com mais unidades</small>
+          </article>
+
+          <article class="stat-card stat-card--purple">
+            <span class="stat-label">EPIs mais caros</span>
+            <strong>{{ expensiveChart.length ? expensiveChart[0].label : '—' }}</strong>
+            <small>Maior valor unitário</small>
+          </article>
         </div>
 
-        <div v-else-if="accessChecked && !isTeamMember" class="access-gate">
-          <p class="eyebrow">Acesso restrito</p>
-          <h2>Este e-mail não tem permissão para o sistema de confirmação.</h2>
+        <div class="charts-grid">
+          <section class="chart-card">
+            <div class="chart-card__header">
+              <div>
+                <h2>EPIs com mais quantidade</h2>
+                <p>Relação dos itens em estoque ordenados por volume.</p>
+              </div>
+              <span class="chip">Top 5</span>
+            </div>
+            <div class="bar-chart">
+              <div class="bar-row" v-for="item in quantityChart" :key="item.label">
+                <div class="bar-info">
+                  <span>{{ item.label }}</span>
+                  <strong>{{ item.value }}</strong>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" :style="{ width: item.width + '%' }"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="chart-card chart-card--split">
+            <div class="chart-card__header">
+              <div>
+                <h2>EPIs mais caros</h2>
+                <p>O valor unitário dos itens de maior custo.</p>
+              </div>
+            </div>
+            <div class="price-list">
+              <div class="price-item" v-for="item in expensiveChart" :key="item.label">
+                <div>
+                  <span class="price-name">{{ item.label }}</span>
+                  <p class="price-subtitle">R$ {{ item.price.toFixed(2) }}</p>
+                </div>
+                <strong>{{ item.margin }}%</strong>
+              </div>
+            </div>
+          </section>
         </div>
-
-        <template v-else-if="accessChecked && isTeamMember">
-          <header class="page-header">
-            <div class="page-header__text">
-              <p class="eyebrow">Análise · confirmação</p>
-              <h1>Dashboard</h1>
-              <p class="page-subtitle">Visão geral dos canhotos: quem está subindo, quem está caindo, e onde prestar atenção.</p>
-            </div>
-          </header>
-
-          <section class="toolbar">
-            <label class="field field--week">
-              <span>Semana</span>
-              <CustomSelect v-model="selectedWeek" :options="weekSelectOptions" placeholder="Selecionar semana" />
-            </label>
-            <label class="field field--sm">
-              <span>Carteira</span>
-              <CustomSelect v-model="selectedWallet" :options="walletSelectOptions" placeholder="Todas" />
-            </label>
-          </section>
-
-          <p v-if="loadError" class="error-banner">{{ loadError }}</p>
-
-          <!-- ===== KPIs ===== -->
-          <section class="kpi-grid">
-            <article class="kpi-card">
-              <span>Total início da semana</span>
-              <strong>{{ formatCurrency(kpis.startTotal) }}</strong>
-            </article>
-            <article class="kpi-card">
-              <span>Total fim da semana</span>
-              <strong>{{ formatCurrency(kpis.endTotal) }}</strong>
-            </article>
-            <article class="kpi-card" :class="kpis.delta <= 0 ? 'kpi-card--good' : 'kpi-card--bad'">
-              <span>Variação</span>
-              <strong>{{ kpis.delta > 0 ? '+' : '' }}{{ formatCurrency(kpis.delta) }}</strong>
-            </article>
-            <article class="kpi-card">
-              <span>Carteiras completas</span>
-              <strong>{{ kpis.walletsCompletas }} / {{ ALL_WALLETS.length }}</strong>
-            </article>
-          </section>
-
-          <!-- ===== Alertas agregados ===== -->
-          <section v-if="alertasGerais.length" class="alert-banner">
-            <strong>⚠ Categorias críticas subindo esta semana:</strong>
-
-            <div v-if="alertasFidc.length" class="alert-group">
-              <h4>FIDC</h4>
-              <ul>
-                <li v-for="a in alertasFidc" :key="`fidc-${a.wallet}-${a.key}`">
-                  Carteira {{ a.wallet }} · {{ cleanCategoryLabel(a.key) }} — subiu {{ formatCurrency(a.delta) }}
-                </li>
-              </ul>
-            </div>
-
-            <div v-if="alertasFactor.length" class="alert-group">
-              <h4>FACTOR</h4>
-              <ul>
-                <li v-for="a in alertasFactor" :key="`factor-${a.wallet}-${a.key}`">
-                  Carteira {{ a.wallet }} · {{ cleanCategoryLabel(a.key) }} — subiu {{ formatCurrency(a.delta) }}
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <!-- ===== Equipe (cards) ===== -->
-          <TeamGrid title="Equipe" />
-
-          <!-- ===== Gráficos ===== -->
-          <section class="charts-grid">
-            <div class="chart-card">
-              <h3>Início × Fim por carteira</h3>
-              <p class="chart-card__hint">{{ formatWeekLabel(selectedWeek) }}</p>
-              <canvas ref="barCanvasRef" height="220"></canvas>
-            </div>
-            <div class="chart-card">
-              <h3>Evolução ao longo das semanas</h3>
-              <p class="chart-card__hint">Total (fim) por semana, últimas {{ trendData.labels.length }} semanas</p>
-              <canvas ref="lineCanvasRef" height="220"></canvas>
-            </div>
-          </section>
-
-          <!-- ===== Ranking de categorias ===== -->
-          <section class="conf-table">
-            <div class="conf-table__row conf-table__row--head">
-              <span>Categoria</span>
-              <span>Início</span>
-              <span>Fim</span>
-              <span>Variação</span>
-            </div>
-
-            <template v-if="categoryRankingFactor.length">
-              <div class="conf-table__group-label">Factor</div>
-              <div
-                v-for="row in categoryRankingFactor" :key="row.key"
-                class="conf-table__row"
-                :class="{ 'conf-table__row--alert': row.critico && row.delta > 0 }"
-              >
-                <span>{{ row.label }} <em v-if="row.critico" class="conf-table__tag">crítico</em></span>
-                <span>{{ formatCurrency(row.inicio) }}</span>
-                <span>{{ formatCurrency(row.fim) }}</span>
-                <strong :class="row.delta <= 0 ? 'delta--good' : 'delta--bad'">
-                  {{ row.delta > 0 ? '+' : '' }}{{ formatCurrency(row.delta) }}
-                </strong>
-              </div>
-            </template>
-
-            <div v-if="categoryRankingFactor.length && categoryRankingFidc.length" class="conf-table__divider"></div>
-
-            <template v-if="categoryRankingFidc.length">
-              <div class="conf-table__group-label">FIDC</div>
-              <div
-                v-for="row in categoryRankingFidc" :key="row.key"
-                class="conf-table__row"
-                :class="{ 'conf-table__row--alert': row.critico && row.delta > 0 }"
-              >
-                <span>{{ row.label }} <em v-if="row.critico" class="conf-table__tag">crítico</em></span>
-                <span>{{ formatCurrency(row.inicio) }}</span>
-                <span>{{ formatCurrency(row.fim) }}</span>
-                <strong :class="row.delta <= 0 ? 'delta--good' : 'delta--bad'">
-                  {{ row.delta > 0 ? '+' : '' }}{{ formatCurrency(row.delta) }}
-                </strong>
-              </div>
-            </template>
-
-            <p v-if="!categoryRankingFactor.length && !categoryRankingFidc.length" class="info-message">Sem lançamentos nesta semana ainda.</p>
-          </section>
-
-          
-        </template>
       </section>
 
       <RouterView v-if="!isDashboardRoot" />
@@ -155,598 +85,75 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSupabase } from '../composables/useSupabase'
 import Sidebar from '../components/sidebar.vue'
-import CustomSelect from '../components/CustomSelect.vue'
-import TeamGrid from '../components/TeamGrid.vue'
-import Chart from 'chart.js/auto'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 
 const isSidebarCollapsed = ref(true)
 const route = useRoute()
 const isDashboardRoot = computed(() => route.path === '/dashboard')
 
-const { session, supabase } = useSupabase()
+const { supabase } = useSupabase()
 
-/* ---------- Acesso: qualquer pessoa cadastrada em team_access ---------- */
-const accessChecked = ref(false)
-const isTeamMember = ref(false)
+const totalEPIs = ref(0)
+const retiradosHoje = ref(0) // no transactions table available; default 0
+const semEstoque = ref(0)
+const maiorQuantidadeNome = ref('')
 
-async function resolveAccess(email) {
-  accessChecked.value = false
-  isTeamMember.value = false
-  if (!email) { accessChecked.value = true; return }
+const quantityChart = ref([])
+const expensiveChart = ref([])
 
+onMounted(async () => {
   try {
-    const { data, error } = await supabase
-      .from('team_access')
-      .select('email')
-      .eq('email', email)
-      .maybeSingle()
-
-    if (error) throw error
-    isTeamMember.value = !!data
-  } catch (e) {
-    console.error(e)
-  } finally {
-    accessChecked.value = true
-  }
-}
-
-watch(() => session.value?.user?.email, (email) => resolveAccess(email), { immediate: true })
-
-/* ---------- Dados ---------- */
-const ALL_WALLETS = ['Letícia', 'Herculano', 'Thiago', 'Thamires', 'Daiane', 'Douglas']
-const GERAL_WALLET = 'Geral (conferência)'
-const MONTH_NAMES_PT = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-
-const rawItems = ref([])
-const loadError = ref('')
-
-function isCriticalCategory(key) {
-  return /30 Dias|31\+ Dias|Minuta/i.test(key)
-}
-
-function sumObject(obj) {
-  if (!obj) return 0
-  return Object.values(obj).reduce((s, v) => s + Number(v || 0), 0)
-}
-
-function formatCurrency(v) {
-  return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
-
-function formatWeekLabel(weekStart) {
-  if (!weekStart) return '—'
-  const start = new Date(`${weekStart}T00:00:00Z`)
-  const end = new Date(start)
-  end.setUTCDate(end.getUTCDate() + 4)
-  const fmt = dt => dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' })
-  return `Semana de ${fmt(start)} a ${fmt(end)}`
-}
-
-/* ---------- Rótulo de categoria sem repetir FIDC / Factor / Geral ---------- */
-function cleanCategoryLabel(key) {
-  return key
-    .split(' - ')
-    .filter(part => !/^(FIDC|Factor|Geral)$/i.test(part.trim()))
-    .join(' - ')
-}
-
-function categoryGroup(key) {
-  if (/factor/i.test(key)) return 'factor'
-  if (/fidc/i.test(key)) return 'fidc'
-  return 'outro'
-}
-
-/* ---------- Helpers de mês ---------- */
-function monthKeyFromWeek(weekStart) {
-  return weekStart.slice(0, 7) // 'YYYY-MM'
-}
-
-function formatMonthLabel(monthKey) {
-  const [year, month] = monthKey.split('-').map(Number)
-  return `${MONTH_NAMES_PT[month - 1]} ${year}`
-}
-
-function formatMonthLabelShort(monthKey) {
-  const [year, month] = monthKey.split('-').map(Number)
-  return `${MONTH_NAMES_PT[month - 1].slice(0, 3)}/${String(year).slice(2)}`
-}
-
-async function carregarDados() {
-  loadError.value = ''
-  try {
-    const { data, error } = await supabase
-      .from('weekly_snapshots')
-      .select('*')
-      .neq('wallet', GERAL_WALLET)
-      .order('week_start', { ascending: false })
-
-    if (error) throw error
-    rawItems.value = data
-  } catch (e) {
-    console.error(e)
-    loadError.value = 'Não foi possível carregar os dados do dashboard.'
-  }
-}
-
-onMounted(() => {
-  if (isDashboardRoot.value) carregarDados()
-})
-
-watch(isDashboardRoot, (isRoot) => {
-  if (isRoot && !rawItems.value.length) carregarDados()
-})
-
-/* ---------- Filtros (semanais) ---------- */
-const weeksAvailable = computed(() => {
-  const weeks = new Set(rawItems.value.map(i => i.week_start))
-  return Array.from(weeks).sort((a, b) => (a < b ? 1 : -1))
-})
-
-const selectedWeek = ref('')
-watch(weeksAvailable, (weeks) => {
-  if (!selectedWeek.value && weeks.length) selectedWeek.value = weeks[0]
-}, { immediate: true })
-
-const weekSelectOptions = computed(() =>
-  weeksAvailable.value.map(w => ({ value: w, label: formatWeekLabel(w) }))
-)
-
-const selectedWallet = ref('')
-
-const walletSelectOptions = computed(() => [
-  { value: '', label: 'Todas' },
-  ...ALL_WALLETS.map(w => ({ value: w, label: w }))
-])
-
-const itemsForWeek = computed(() => rawItems.value.filter(i =>
-  i.week_start === selectedWeek.value && (!selectedWallet.value || i.wallet === selectedWallet.value)
-))
-
-/* ---------- KPIs (semanais) ---------- */
-const kpis = computed(() => {
-  const inicioItems = itemsForWeek.value.filter(i => i.snapshot_type === 'inicio')
-  const fimItems = itemsForWeek.value.filter(i => i.snapshot_type === 'fim')
-  const startTotal = inicioItems.reduce((s, i) => s + sumObject(i.fidc) + sumObject(i.factor), 0)
-  const endTotal = fimItems.reduce((s, i) => s + sumObject(i.fidc) + sumObject(i.factor), 0)
-
-  const wallets = selectedWallet.value ? [selectedWallet.value] : ALL_WALLETS
-  const walletsCompletas = wallets.filter(w =>
-    inicioItems.some(i => i.wallet === w) && fimItems.some(i => i.wallet === w)
-  ).length
-
-  return { startTotal, endTotal, delta: endTotal - startTotal, walletsCompletas }
-})
-
-/* ---------- Alertas agregados (por carteira) ---------- */
-const alertasGerais = computed(() => {
-  const alertas = []
-  const byWallet = new Map()
-
-  itemsForWeek.value.forEach(item => {
-    if (!byWallet.has(item.wallet)) {
-      byWallet.set(item.wallet, {})
+    const { data, error } = await supabase.from('epis').select('*')
+    if (error) {
+      console.error('Erro ao buscar EPIs:', error)
+      return
     }
 
-    byWallet.get(item.wallet)[item.snapshot_type] = item
-  })
+    const rows = data || []
+    totalEPIs.value = rows.length
 
-  byWallet.forEach((pair, wallet) => {
-    if (!pair.inicio || !pair.fim) return
+    // sem estoque: quantidade <= 0 or null
+    semEstoque.value = rows.filter(r => !(r.quantidade) || Number(r.quantidade) <= 0).length
 
-    const grupos = [
-      {
-        group: 'fidc',
-        inicio: pair.inicio.fidc || {},
-        fim: pair.fim.fidc || {}
-      },
-      {
-        group: 'factor',
-        inicio: pair.inicio.factor || {},
-        fim: pair.fim.factor || {}
-      }
-    ]
+    // maior quantidade
+    const byQuantity = rows.slice().sort((a, b) => (Number(b.quantidade) || 0) - (Number(a.quantidade) || 0))
+    maiorQuantidadeNome.value = byQuantity.length ? (byQuantity[0].nome_epi || '') : ''
 
-    grupos.forEach(({ group, inicio, fim }) => {
-      const keys = new Set([
-        ...Object.keys(inicio),
-        ...Object.keys(fim)
-      ])
+    // quantity chart - top 5
+    const topQty = byQuantity.slice(0, 5).map(r => ({ label: r.nome_epi || '—', value: Number(r.quantidade) || 0 }))
+    const maxVal = topQty.length ? Math.max(...topQty.map(i => i.value)) : 1
+    quantityChart.value = topQty.map(i => ({ ...i, width: maxVal ? Math.round((i.value / maxVal) * 100) : 0 }))
 
-      keys.forEach(key => {
-        const start = Number(inicio[key] || 0)
-        const end = Number(fim[key] || 0)
-        const delta = end - start
+    // expensive chart - top 4 by preco
+    const byPrice = rows.slice().sort((a, b) => (Number(b.preco) || 0) - (Number(a.preco) || 0))
+    const topExp = byPrice.slice(0, 4).map(r => ({ label: r.nome_epi || '—', price: Number(r.preco) || 0 }))
+    // margin: relative percentage to highest
+    const highest = topExp.length ? topExp[0].price : 1
+    expensiveChart.value = topExp.map(e => ({ ...e, margin: highest ? Math.round((e.price / highest) * 100) : 0 }))
 
-        if (isCriticalCategory(key) && delta > 0) {
-          alertas.push({
-            wallet,
-            key,
-            group,
-            delta
-          })
-        }
-      })
-    })
-  })
+    // try to detect today's withdrawals from common tables
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const isoStart = today.toISOString()
 
-  return alertas.sort((a, b) => b.delta - a.delta)
-})
+    // contar retiradas de hoje
+    const { count, error: retiradaError } = await supabase
+      .from('fichas_epi')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', isoStart)
 
-const alertasFidc = computed(() =>
-  alertasGerais.value.filter(alerta => alerta.group === 'fidc')
-)
-
-const alertasFactor = computed(() =>
-  alertasGerais.value.filter(alerta => alerta.group === 'factor')
-)
-
-/* ---------- Ranking de categorias (separado por Factor / FIDC) ---------- */
-const categoryRanking = computed(() => {
-  const inicioItems = itemsForWeek.value.filter(i => i.snapshot_type === 'inicio')
-  const fimItems = itemsForWeek.value.filter(i => i.snapshot_type === 'fim')
-
-  const somaInicio = {}
-  const somaFim = {}
-  inicioItems.forEach(i => {
-    Object.entries({ ...i.fidc, ...i.factor }).forEach(([k, v]) => { somaInicio[k] = (somaInicio[k] || 0) + Number(v || 0) })
-  })
-  fimItems.forEach(i => {
-    Object.entries({ ...i.fidc, ...i.factor }).forEach(([k, v]) => { somaFim[k] = (somaFim[k] || 0) + Number(v || 0) })
-  })
-
-  const keys = new Set([...Object.keys(somaInicio), ...Object.keys(somaFim)])
-  return Array.from(keys).map(key => {
-    const inicio = somaInicio[key] || 0
-    const fim = somaFim[key] || 0
-    return {
-      key,
-      label: cleanCategoryLabel(key),
-      group: categoryGroup(key),
-      inicio,
-      fim,
-      delta: fim - inicio,
-      critico: isCriticalCategory(key)
+    if (!retiradaError) {
+      retiradosHoje.value = count || 0
     }
-  }).sort((a, b) => a.delta - b.delta)
-})
 
-const categoryRankingFactor = computed(() => categoryRanking.value.filter(r => r.group === 'factor'))
-const categoryRankingFidc = computed(() => categoryRanking.value.filter(r => r.group === 'fidc'))
 
-/* ---------- Tendência semanal (últimas semanas) ---------- */
-const trendData = computed(() => {
-  const byWeek = new Map()
-  rawItems.value.forEach(item => {
-    if (!byWeek.has(item.week_start)) byWeek.set(item.week_start, { inicio: 0, fim: 0 })
-    const total = sumObject(item.fidc) + sumObject(item.factor)
-    if (item.snapshot_type === 'inicio') byWeek.get(item.week_start).inicio += total
-    else byWeek.get(item.week_start).fim += total
-  })
-
-  const weeks = Array.from(byWeek.keys()).sort().slice(-12)
-  return {
-    labels: weeks.map(w => formatWeekLabel(w).replace('Semana de ', '')),
-    inicio: weeks.map(w => byWeek.get(w).inicio),
-    fim: weeks.map(w => byWeek.get(w).fim)
+  } catch (err) {
+    console.error('Erro ao carregar dashboard:', err)
   }
 })
-
-/* ---------- Comparativo mensal ---------- */
-const monthlyAggregates = computed(() => {
-  const byMonth = new Map()
-
-  rawItems.value.forEach(item => {
-    const monthKey = monthKeyFromWeek(item.week_start)
-    if (!byMonth.has(monthKey)) {
-      byMonth.set(monthKey, { inicio: 0, fim: 0, byWallet: new Map() })
-    }
-    const bucket = byMonth.get(monthKey)
-    const total = sumObject(item.fidc) + sumObject(item.factor)
-
-    if (item.snapshot_type === 'inicio') bucket.inicio += total
-    else bucket.fim += total
-
-    if (!bucket.byWallet.has(item.wallet)) {
-      bucket.byWallet.set(item.wallet, { inicio: 0, fim: 0 })
-    }
-    const walletBucket = bucket.byWallet.get(item.wallet)
-    if (item.snapshot_type === 'inicio') walletBucket.inicio += total
-    else walletBucket.fim += total
-  })
-
-  return byMonth
-})
-
-const monthsAvailable = computed(() => {
-  return Array.from(monthlyAggregates.value.keys()).sort((a, b) => (a < b ? 1 : -1))
-})
-
-const selectedMonth = ref('')
-watch(monthsAvailable, (months) => {
-  if (!selectedMonth.value && months.length) selectedMonth.value = months[0]
-}, { immediate: true })
-
-const monthSelectOptions = computed(() =>
-  monthsAvailable.value.map(m => ({ value: m, label: formatMonthLabel(m) }))
-)
-
-const monthlyKpis = computed(() => {
-  const bucket = monthlyAggregates.value.get(selectedMonth.value)
-  if (!bucket) return { inicio: 0, fim: 0, delta: 0 }
-  return { inicio: bucket.inicio, fim: bucket.fim, delta: bucket.fim - bucket.inicio }
-})
-
-const totalBaixadoMes = computed(() => -monthlyKpis.value.delta)
-
-const previousMonthKey = computed(() => {
-  const months = monthsAvailable.value // mais recente primeiro
-  const idx = months.indexOf(selectedMonth.value)
-  return idx >= 0 && idx + 1 < months.length ? months[idx + 1] : null
-})
-
-const monthlyComparisonPrevious = computed(() => {
-  if (!previousMonthKey.value) return null
-  const bucket = monthlyAggregates.value.get(previousMonthKey.value)
-  if (!bucket) return null
-  const prevBaixado = bucket.inicio - bucket.fim
-  return {
-    monthLabel: formatMonthLabel(previousMonthKey.value),
-    diff: totalBaixadoMes.value - prevBaixado
-  }
-})
-
-const monthlyWalletBreakdown = computed(() => {
-  const bucket = monthlyAggregates.value.get(selectedMonth.value)
-  if (!bucket) return []
-  return ALL_WALLETS.map(wallet => {
-    const w = bucket.byWallet.get(wallet) || { inicio: 0, fim: 0 }
-    return { wallet, inicio: w.inicio, fim: w.fim, delta: w.fim - w.inicio }
-  })
-})
-
-const monthlyTrend = computed(() => {
-  const months = Array.from(monthlyAggregates.value.keys()).sort().slice(-12)
-  return {
-    labels: months.map(formatMonthLabelShort),
-    inicio: months.map(m => monthlyAggregates.value.get(m).inicio),
-    fim: months.map(m => monthlyAggregates.value.get(m).fim)
-  }
-})
-
-/* ---------- PDF do comparativo mensal ---------- */
-const generatingMonthlyPdf = ref(false)
-const monthlyChartImage = ref('')
-const monthlyPdfGeneratedAt = ref('')
-
-function buildMonthlyChartImage() {
-  if (!monthlyChart) return ''
-
-  return monthlyChart.toBase64Image(
-    'image/png',
-    1
-  )
-}
-
-async function baixarComparativoMensalPdf() {
-  if (!selectedMonth.value) {
-    loadError.value = 'Selecione um mês antes de gerar o PDF.'
-    return
-  }
-
-  if (!monthlyWalletBreakdown.value.length) {
-    loadError.value = 'Não existem lançamentos para gerar o comparativo deste mês.'
-    return
-  }
-
-  generatingMonthlyPdf.value = true
-  loadError.value = ''
-
-  try {
-    monthlyChartImage.value = buildMonthlyChartImage()
-    monthlyPdfGeneratedAt.value = new Date().toLocaleString('pt-BR')
-
-    await nextTick()
-
-    const element = document.getElementById('monthly-comparison-pdf')
-
-    if (!element) {
-      throw new Error('Não foi possível localizar o relatório mensal.')
-    }
-
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#f4f7f1',
-      logging: false
-    })
-
-    const imageData = canvas.toDataURL('image/png', 1)
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4'
-    })
-
-    const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    const margin = 8
-    const usableWidth = pageWidth - margin * 2
-    const usableHeight = pageHeight - margin * 2
-
-    const imageWidth = canvas.width
-    const imageHeight = canvas.height
-    const ratio = Math.min(
-      usableWidth / imageWidth,
-      usableHeight / imageHeight
-    )
-
-    const renderedWidth = imageWidth * ratio
-    const renderedHeight = imageHeight * ratio
-    const positionX = (pageWidth - renderedWidth) / 2
-    const positionY = (pageHeight - renderedHeight) / 2
-
-    pdf.addImage(
-      imageData,
-      'PNG',
-      positionX,
-      positionY,
-      renderedWidth,
-      renderedHeight,
-      undefined,
-      'FAST'
-    )
-
-    pdf.save(
-      `comparativo-mensal-${selectedMonth.value}.pdf`
-    )
-  } catch (error) {
-    console.error(
-      'Erro ao gerar PDF mensal:',
-      error
-    )
-
-    loadError.value =
-      error.message ||
-      'Não foi possível gerar o PDF do comparativo mensal.'
-  } finally {
-    generatingMonthlyPdf.value = false
-  }
-}
-
-/* ---------- Gráficos (Chart.js) ---------- */
-const barCanvasRef = ref(null)
-const lineCanvasRef = ref(null)
-const monthlyCanvasRef = ref(null)
-let barChart = null
-let lineChart = null
-let monthlyChart = null
-
-function renderBarChart() {
-  if (!barCanvasRef.value) return
-  const wallets = selectedWallet.value ? [selectedWallet.value] : ALL_WALLETS
-  const inicioItems = itemsForWeek.value.filter(i => i.snapshot_type === 'inicio')
-  const fimItems = itemsForWeek.value.filter(i => i.snapshot_type === 'fim')
-
-  const inicioPorCarteira = wallets.map(w => {
-    const item = inicioItems.find(i => i.wallet === w)
-    return item ? sumObject(item.fidc) + sumObject(item.factor) : 0
-  })
-  const fimPorCarteira = wallets.map(w => {
-    const item = fimItems.find(i => i.wallet === w)
-    return item ? sumObject(item.fidc) + sumObject(item.factor) : 0
-  })
-
-  if (barChart) barChart.destroy()
-  barChart = new Chart(barCanvasRef.value, {
-    type: 'bar',
-    data: {
-      labels: wallets,
-      datasets: [
-        { label: 'Início', data: inicioPorCarteira, backgroundColor: '#7fb6e3' },
-        { label: 'Fim', data: fimPorCarteira, backgroundColor: '#6fe3a0' }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#eef4ee' } } },
-      scales: {
-        x: { ticks: { color: '#eef4ee' }, grid: { color: 'rgba(255,255,255,0.06)' } },
-        y: {
-          title: {
-            display: true,
-            text: 'Valores (R$)',
-            color: '#eef4ee'
-          },
-          ticks: {
-            color: '#eef4ee',
-            callback: value => `R$ ${Number(value).toLocaleString('pt-BR')}`
-          },
-          grid: { color: 'rgba(255,255,255,0.06)' }
-        }
-      }
-    }
-  })
-}
-
-function renderLineChart() {
-  if (!lineCanvasRef.value) return
-  if (lineChart) lineChart.destroy()
-  lineChart = new Chart(lineCanvasRef.value, {
-    type: 'line',
-    data: {
-      labels: trendData.value.labels,
-      datasets: [
-        { label: 'Início', data: trendData.value.inicio, borderColor: '#7fb6e3', backgroundColor: 'rgba(127,182,227,0.15)', tension: 0.3 },
-        { label: 'Fim', data: trendData.value.fim, borderColor: '#6fe3a0', backgroundColor: 'rgba(111,227,160,0.15)', tension: 0.3 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#eef4ee' } } },
-      scales: {
-        x: { ticks: { color: '#eef4ee' }, grid: { color: 'rgba(255,255,255,0.06)' } },
-        y: {
-          title: {
-            display: true,
-            text: 'Valores (R$)',
-            color: '#eef4ee'
-          },
-          ticks: {
-            color: '#eef4ee',
-            callback: value => `R$ ${Number(value).toLocaleString('pt-BR')}`
-          },
-          grid: { color: 'rgba(255,255,255,0.06)' }
-        }
-      }
-    }
-  })
-}
-
-function renderMonthlyChart() {
-  if (!monthlyCanvasRef.value) return
-  if (monthlyChart) monthlyChart.destroy()
-  monthlyChart = new Chart(monthlyCanvasRef.value, {
-    type: 'bar',
-    data: {
-      labels: monthlyTrend.value.labels,
-      datasets: [
-        { label: 'Início', data: monthlyTrend.value.inicio, backgroundColor: '#7fb6e3' },
-        { label: 'Fim', data: monthlyTrend.value.fim, backgroundColor: '#6fe3a0' }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#eef4ee' } } },
-      scales: {
-        x: { ticks: { color: '#eef4ee' }, grid: { color: 'rgba(255,255,255,0.06)' } },
-        y: {
-          title: {
-            display: true,
-            text: 'Valores (R$)',
-            color: '#eef4ee'
-          },
-          ticks: {
-            color: '#eef4ee',
-            callback: value => `R$ ${Number(value).toLocaleString('pt-BR')}`
-          },
-          grid: { color: 'rgba(255,255,255,0.06)' }
-        }
-      }
-    }
-  })
-}
-
-watch([itemsForWeek, selectedWallet], () => nextTick(renderBarChart))
-watch(trendData, () => nextTick(renderLineChart))
-watch(monthlyTrend, () => nextTick(renderMonthlyChart))
-watch(rawItems, () => nextTick(() => { renderBarChart(); renderLineChart(); renderMonthlyChart() }))
 </script>
 
 <style scoped>
@@ -766,331 +173,290 @@ watch(rawItems, () => nextTick(() => { renderBarChart(); renderLineChart(); rend
   min-width: 0;
 }
 
-.dash-content {
-  --ink: #0a1510;
-  --panel: #101d16;
-  --panel-raised: #16261c;
-  --line: rgba(255, 255, 255, 0.08);
-  --paper: #eef4ee;
-  --paper-dim: rgba(238, 244, 238, 0.62);
-  --jade: #6fe3a0;
-  --jade-dim: rgba(111, 227, 160, 0.16);
-  --brass: #eab766;
-  --brass-dim: rgba(234, 183, 102, 0.16);
-  --steel: #7fb6e3;
-  --good: #6fe3a0;
-  --bad: #ff9797;
-  --radius: 0.9rem;
-  --gap: 1.25rem;
-
-  font-family: 'Inter', system-ui, sans-serif;
-  color: var(--paper);
-  display: grid;
-  gap: 1.5rem;
+.conteudo--expanded {
+  margin-left: 250px;
 }
 
-.dash-content h1, .dash-content h2, .dash-content h3 {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-weight: 600;
-  margin: 0;
-}
+/* ─── HEADER ─────────────────────────────────────────── */
 
-.dash-content strong {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
-}
-
-.eyebrow {
-  color: var(--jade);
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.access-gate { display: grid; gap: 0.75rem; padding: 3rem 1.5rem; }
-.page-header { padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
-.page-header h1 { font-size: clamp(1.5rem, 2.4vw, 2rem); }
-.page-subtitle { margin: 0.5rem 0 0; color: var(--paper-dim); }
-
-.btn { border: none; border-radius: 0.7rem; padding: 0.75rem 1.1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; }
-.btn--primary { background: linear-gradient(135deg, #7bf0a6, #2fa85e); color: #05170c; }
-
-.btn--pdf {
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border: 1px solid rgba(111, 227, 160, 0.32);
-  background: rgba(111, 227, 160, 0.1);
-  color: var(--jade);
-}
-
-.btn--pdf:hover:not(:disabled) {
-  background: rgba(111, 227, 160, 0.17);
-}
-
-.btn--pdf:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.toolbar {
+.dashboard-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  padding: 1rem 1.2rem;
-  border-radius: var(--radius);
-  background: var(--panel);
-  border: 1px solid var(--line);
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.field { display: grid; gap: 0.3rem; font-size: 0.85rem; color: var(--paper-dim); }
-.field--sm { width: 12rem; }
-.field--week { width: 17rem; }
-.field--week :deep(select),
-.field--week :deep(button) { white-space: nowrap; }
-
-.error-banner {
-  margin: 0; padding: 0.9rem 1.1rem; border-radius: 0.7rem;
-  background: rgba(255, 148, 148, 0.1); border: 1px solid rgba(255, 148, 148, 0.35); color: var(--bad);
+.dashboard-header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.5vw, 3rem);
 }
 
-.info-message {
-  margin: 0; padding: 0.9rem 1.1rem; border-radius: 0.8rem;
-  background: rgba(255, 255, 255, 0.05); color: var(--paper-dim); border-left: 3px solid var(--steel);
+.status-pill {
+  background: rgba(32, 73, 25, 0.75);
+  border: 1px solid rgba(126, 213, 111, 0.25);
+  border-radius: 999px;
+  color: #c7f7b8;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--gap); }
+/* ─── STAT GRID ───────────────────────────────────────── */
 
-.kpi-card {
-  padding: 1.1rem 1.25rem;
-  border-radius: var(--radius);
-  background: var(--panel);
-  border: 1px solid var(--line);
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: rgba(13, 40, 17, 0.9);
+  border: 1px solid rgba(126, 213, 111, 0.16);
+  border-radius: 18px;
+  padding: 1.5rem;
+  min-height: 140px;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  justify-content: space-between;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.kpi-card span { color: var(--paper-dim); font-size: 0.82rem; }
-.kpi-card strong { font-size: 1.3rem; }
-.kpi-card--good strong { color: var(--good); }
-.kpi-card--bad strong { color: var(--bad); }
-
-.alert-banner {
-  padding: 1rem 1.2rem; border-radius: var(--radius);
-  background: rgba(255, 151, 151, 0.1); border: 1px solid rgba(255, 151, 151, 0.35); color: var(--paper);
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(126, 213, 111, 0.45);
 }
-.alert-banner strong { color: var(--bad); font-family: 'Inter', sans-serif; }
-.alert-banner ul { margin: 0.5rem 0 0; padding-left: 1.2rem; color: var(--paper-dim); font-size: 0.85rem; }
 
-.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.stat-label {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+
+.stat-card strong {
+  font-size: 1.2rem;
+  margin: 0.75rem 0 0.5rem;
+  display: block;
+}
+
+.stat-card small {
+  color: #a7bf9f;
+}
+
+.stat-card--green {
+  background: linear-gradient(180deg, rgba(21, 72, 24, 0.95) 0%, rgba(8, 24, 11, 0.9) 100%);
+}
+
+.stat-card--orange {
+  background: linear-gradient(180deg, rgba(90, 47, 16, 0.92) 0%, rgba(16, 35, 13, 0.9) 100%);
+}
+
+.stat-card--red {
+  background: linear-gradient(180deg, rgba(76, 17, 17, 0.92) 0%, rgba(12, 22, 12, 0.9) 100%);
+}
+
+.stat-card--blue {
+  background: linear-gradient(180deg, rgba(11, 32, 55, 0.92) 0%, rgba(9, 19, 15, 0.9) 100%);
+}
+
+.stat-card--purple {
+  background: linear-gradient(180deg, rgba(40, 25, 52, 0.92) 0%, rgba(9, 15, 13, 0.9) 100%);
+}
+
+/* ─── CHARTS ──────────────────────────────────────────── */
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr;
+  gap: 1rem;
+}
 
 .chart-card {
-  padding: 1.2rem 1.3rem;
-  border-radius: var(--radius);
-  background: var(--panel);
-  border: 1px solid var(--line);
+  background: rgba(12, 30, 12, 0.9);
+  border: 1px solid rgba(126, 213, 111, 0.14);
+  border-radius: 24px;
+  padding: 1.5rem;
+  min-height: 380px;
 }
 
-.chart-card__hint { margin: 0.2rem 0 1rem; color: var(--paper-dim); font-size: 0.82rem; }
+.chart-card--split {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-.conf-table { border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
-
-.conf-table__row {
-  display: grid;
-  grid-template-columns: 2.4fr 1fr 1fr 1fr;
-  gap: 0.75rem;
+.chart-card__header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 0.65rem 1rem;
-  font-size: 0.84rem;
-  border-top: 1px solid var(--line);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.conf-table__row--head {
-  border-top: none;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--paper-dim);
-  background: rgba(255, 255, 255, 0.03);
+.chart-card__header h2 {
+  margin: 0;
+  font-size: 1.3rem;
 }
 
-.conf-table__group-label {
-  padding: 0.5rem 1rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--jade);
-  background: rgba(111, 227, 160, 0.08);
-  border-top: 1px solid var(--line);
+.chart-card__header p {
+  margin: 0.5rem 0 0;
+  color: #9cb88c;
+  font-size: 0.95rem;
 }
 
-.conf-table__divider {
-  height: 1px;
-  background: var(--line);
-}
-
-.conf-table__row:nth-of-type(even) { background: rgba(255, 255, 255, 0.015); }
-.conf-table__row--alert { background: rgba(255, 151, 151, 0.12); }
-.conf-table__row span:not(.conf-table__tag) { color: var(--paper-dim); }
-.conf-table__row strong { text-align: right; }
-
-.conf-table__tag {
-  font-style: normal;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--brass);
-  background: var(--brass-dim);
-  padding: 0.1rem 0.4rem;
+.chip {
+  background: rgba(126, 213, 111, 0.12);
+  border: 1px solid rgba(126, 213, 111, 0.22);
+  color: #d6f7c8;
   border-radius: 999px;
-  margin-left: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
-.delta--good { color: var(--good); }
-.delta--bad { color: var(--bad); }
+/* ─── BAR CHART ───────────────────────────────────────── */
 
-.alert-group {
-  margin-top: 0.9rem;
+.bar-chart {
+  display: grid;
+  gap: 1rem;
 }
 
-.alert-group h4 {
-  margin: 0 0 0.35rem;
-  color: var(--paper);
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
+.bar-row {
+  display: grid;
+  gap: 0.75rem;
 }
 
-.alert-group ul {
-  margin-top: 0.25rem;
+.bar-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  color: #d7edc8;
 }
 
-
-
-/* ============================================================
-   RESPONSIVIDADE — DASHBOARD
-   ============================================================ */
-.shell,
-.conteudo,
-.dash-content,
-.toolbar,
-.kpi-grid,
-.charts-grid,
-.chart-card,
-.conf-table {
-  min-width: 0;
+.bar-track {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
 }
 
-.chart-card canvas {
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(126, 213, 111, 1), rgba(47, 215, 108, 0.72));
+  border-radius: 999px;
+}
+
+/* ─── PRICE LIST ──────────────────────────────────────── */
+
+.price-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(22, 44, 16, 0.85);
+  border: 1px solid rgba(126, 213, 111, 0.1);
+  transition: background 0.2s ease;
+}
+
+.price-item:hover {
+  background: rgba(33, 71, 27, 0.95);
+}
+
+.price-name {
   display: block;
-  max-width: 100%;
+  color: #eef2e5;
+  font-weight: 600;
 }
 
-@media (max-width: 1280px) {
-  .dash-content {
-    padding: 1.75rem clamp(1rem, 2.5vw, 2rem);
-  }
+.price-subtitle {
+  margin: 0.35rem 0 0;
+  color: #a0b194;
+}
 
-  .kpi-grid {
+/* ─── BREAKPOINTS ─────────────────────────────────────── */
+
+/* Tablet largo (≤ 1400px) — sidebar comprime o espaço */
+@media (max-width: 1400px) {
+  .stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Tablet (≤ 1100px) */
+@media (max-width: 1100px) {
+  .stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .charts-grid {
     grid-template-columns: 1fr;
   }
-}
-
-@media (max-width: 900px) {
-  .conteudo {
-    margin-left: 80px !important;
-    width: calc(100% - 80px);
-  }
-
-  .dash-content {
-    padding: 1.35rem 1rem 2rem;
-  }
-
-  .page-header h1 {
-    font-size: clamp(1.8rem, 5vw, 2.35rem);
-  }
-
-  .toolbar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem;
-  }
-
-  .field,
-  .field--week,
-  .field--sm {
-    width: 100%;
-    min-width: 0;
-  }
 
   .chart-card {
-    overflow: hidden;
-  }
-
-  .conf-table {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .conf-table__row,
-  .conf-table__group-label,
-  .conf-table__divider {
-    min-width: 700px;
+    min-height: auto;
   }
 }
 
-@media (max-width: 640px) {
-  .conteudo {
-    margin-left: 0 !important;
-    width: 100%;
+/* Mobile grande (≤ 768px) */
+@media (max-width: 768px) {
+  .shell {
+    flex-direction: column;
   }
 
-  .dash-content {
-    padding: 1rem 0.75rem 1.5rem;
+  .conteudo,
+  .conteudo--expanded {
+    margin-left: 0;
+    padding: 1rem;
   }
 
-  .page-header h1 {
-    font-size: clamp(1.7rem, 8vw, 2.1rem);
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .page-subtitle {
-    font-size: 0.86rem;
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .toolbar {
-    grid-template-columns: 1fr;
-  }
-
-  .kpi-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .kpi-card {
-    min-height: auto;
-  }
-
-  .alert-banner {
-    padding: 0.9rem;
-    font-size: 0.84rem;
-  }
-
-  .alert-group ul {
-    padding-left: 1.1rem;
+  .status-pill {
+    width: fit-content;
   }
 
   .chart-card {
     padding: 1rem;
   }
+}
 
-  .chart-card canvas {
-    min-height: 260px;
+/* Mobile pequeno (≤ 480px) */
+@media (max-width: 480px) {
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+    min-height: auto;
+  }
+
+  .chart-card__header {
+    flex-wrap: wrap;
+  }
+
+  .chart-card__header h2 {
+    font-size: 1.1rem;
+  }
+
+  .price-item {
+    padding: 0.75rem;
   }
 }
 </style>

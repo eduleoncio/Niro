@@ -15,67 +15,53 @@
     <nav class="menu">
       <RouterLink to="/dashboard" class="menu-item" exact-active-class="active">
         <div class="icon-box">
-          <img src="../assets/icon-dashboard.svg" class="menu-icon" alt="Dashboard" />
+          <img src="../assets/icon-dashboard.svg" class="menu-icon" />
         </div>
-
-        <span class="menu-label">
-          Dashboard
-        </span>
+        <span class="menu-label">Dashboard</span>
       </RouterLink>
 
-      <RouterLink to="/dashboard/lancamentos" class="menu-item" active-class="active">
+      <RouterLink to="/dashboard/estoque" class="menu-item" active-class="active">
         <div class="icon-box">
-          <img src="../assets/lancamentos.svg" class="menu-icon" alt="Lançamentos" />
+          <img src="../assets/icon-estoque.svg" class="menu-icon" />
         </div>
-
-        <span class="menu-label">
-          Lançamentos
-        </span>
+        <span class="menu-label">Estoque</span>
       </RouterLink>
 
-      <RouterLink to="/dashboard/mensal" class="menu-item" active-class="active">
+      <RouterLink to="/dashboard/cadastrarEPI" class="menu-item" active-class="active">
         <div class="icon-box">
-          <img src="../assets/mensal.svg" class="menu-icon" alt="Mensal" />
+          <img src="../assets/icon-cadastrar.svg" class="menu-icon" />
         </div>
-
-        <span class="menu-label">
-          Mensal
-        </span>
+        <span class="menu-label">Cadastrar EPI</span>
       </RouterLink>
 
-      <RouterLink to="/dashboard/historico" class="menu-item" active-class="active">
+      <RouterLink to="/dashboard/rastrearEPI" class="menu-item" active-class="active">
         <div class="icon-box">
-          <img src="../assets/historico.svg" class="menu-icon" alt="Histórico" />
+          <img src="../assets/icon-rastrear.svg" class="menu-icon" />
         </div>
+        <span class="menu-label">Rastrear EPI</span>
+      </RouterLink>
 
-        <span class="menu-label">
-          Histórico
-        </span>
+      <RouterLink to="/dashboard/retirarEPI" class="menu-item" active-class="active">
+        <div class="icon-box">
+          <img src="../assets/icon-retirar.svg" class="menu-icon" />
+        </div>
+        <span class="menu-label">Retirar EPI</span>
+      </RouterLink>
+
+
+
+      <RouterLink to="/dashboard/funcionarios" class="menu-item" active-class="active">
+        <div class="icon-box">
+          <img src="../assets/icon-funcionarios.svg" class="menu-icon" />
+        </div>
+        <span class="menu-label">Funcionários</span>
       </RouterLink>
 
       <RouterLink to="/dashboard/perfil" class="menu-item" active-class="active">
         <div class="icon-box">
-          <img src="../assets/icon-perfil.svg" class="menu-icon" alt="Perfil" />
+          <img src="../assets/icon-perfil.svg" class="menu-icon" />
         </div>
-
-        <span class="menu-label">
-          Perfil
-        </span>
-      </RouterLink>
-
-      <RouterLink v-if="session?.user?.email" :to="{
-        name: 'dashboard-perfil-equipe',
-        params: {
-          email: session.user.email
-        }
-      }" class="menu-item" active-class="active">
-        <div class="icon-box">
-          <img src="../assets/icon-perfil.svg" class="menu-icon" alt="Perfil" />
-        </div>
-
-        <span class="menu-label">
-          Perfil
-        </span>
+        <span class="menu-label">Perfil</span>
       </RouterLink>
     </nav>
 
@@ -124,138 +110,109 @@ function toggleSidebar() {
 </script>
 
 <style scoped>
-.sidebar {
-  --ink: #0a1510;
-  --panel: #101d16;
-  --line: rgba(255, 255, 255, 0.08);
-  --paper: #eef4ee;
-  --paper-dim: rgba(238, 244, 238, 0.5);
-  --jade: #6fe3a0;
-  --jade-dim: rgba(111, 227, 160, 0.14);
-  --radius: 0.9rem;
 
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.navbar_logo {
+  width: auto;
+  width: 3.5rem;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  text-align: center;
+}
+
+.sidebar {
   width: 15.625rem;
-  background: var(--ink);
-  color: var(--paper);
+  background: #0A0E0D;
+  color: white;
   position: fixed;
   height: 100vh;
-  padding: 1.5rem 1.1rem;
-  border-right: 1px solid var(--line);
-  box-sizing: border-box;
-  font-family: 'Inter', system-ui, sans-serif;
-  display: flex;
-  flex-direction: column;
-  transition: width 0.2s ease, padding 0.2s ease;
-  z-index: 20;
+  padding: 1.3rem;
+  transition: width 0.2s ease;
 }
 
 .sidebar--collapsed {
-  width: 5.25rem;
-  padding: 1.5rem 0.85rem;
+  width: 5rem;
 }
 
-/* ===== Top / brand ===== */
 .sidebar-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
-  min-height: 2.375rem;
-}
-
-.sidebar:not(.sidebar--collapsed) .sidebar-top {
-  justify-content: flex-start;
 }
 
 .sidebar--collapsed .sidebar-top {
   justify-content: center;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
+.sidebar:not(.sidebar--collapsed) .sidebar-top {
   justify-content: center;
 }
 
-.navbar_logo {
-  width: 2.4rem;
-  height: auto;
-  display: block;
+.sidebar:not(.sidebar--collapsed) .hamburger-button {
+  position: absolute;
+  left: 1.3rem;
 }
 
 .hamburger-button {
-  flex-shrink: 0;
   width: 2.375rem;
   height: 2.375rem;
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  gap: 0.3rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--line);
-  border-radius: 0.7rem;
+  gap: 0.3125rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
   cursor: pointer;
-  padding: 0;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.hamburger-button:hover {
-  background: var(--jade-dim);
-  border-color: rgba(111, 227, 160, 0.3);
+  padding: 0.375rem;
 }
 
 .hamburger-button span {
   display: block;
-  width: 1.05rem;
-  height: 0.125rem;
+  width: 100%;
+  height: 0.1875rem;
+  background: #ffffff;
   border-radius: 999px;
-  background: var(--paper);
-  opacity: 0.75;
-  transition: background 0.15s ease;
 }
 
-.hamburger-button:hover span {
-  background: var(--jade);
-  opacity: 1;
-}
-
-/* ===== Nav ===== */
 .menu {
-  margin-top: 2.75rem;
+  text-align: start;
+  justify-content: center;
+  margin-top: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 1rem;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  color: var(--paper-dim);
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.288);
   text-decoration: none;
-  padding: 0.7rem 0.75rem;
-  border-radius: 0.65rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.menu-item:hover {
-  background: rgba(255, 255, 255, 0.045);
-  color: var(--paper);
+  padding: 0.625rem;
+  font-weight: 400;
 }
 
 .sidebar--collapsed .menu-item {
-  padding: 0.7rem;
+  padding: 0.625rem;
   gap: 0;
-  width: 2.9rem;
-  justify-content: center;
+  width: 3.1rem;
+
 }
 
 .menu-label {
   white-space: nowrap;
   overflow: hidden;
-  transition: opacity 0.15s ease, width 0.2s ease, margin 0.2s ease;
+  transition: opacity 0.2s ease, width 0.2s ease, margin 0.2s ease;
 }
 
 .sidebar--collapsed .menu-label {
@@ -264,37 +221,60 @@ function toggleSidebar() {
   margin: 0;
 }
 
+.menu-icon {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  object-fit: contain;
+  opacity: 0.3;
+  transition: 0.2s;
+}
+
+.menu-item.active {
+  background: rgba(64, 137, 60, 1);
+  border-radius: 0.3125rem;
+  color: rgb(255, 255, 255);
+}
+
+.botao-sair {
+  border: solid;
+  border-radius: 0.375rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(0, 255, 47);
+  color: rgb(255, 255, 255);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  background-color: #ffffff08;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  width: 100%;
+  margin-top: 7rem;
+}
+
+.sidebar--collapsed .botao-sair {
+  padding: 0.625rem;
+  gap: 0;
+  width: 3.1rem;
+}
+
+.menu-icon-logout {
+  width: 0.9375rem;
+  height: 1.125rem;
+}
+
 .icon-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 0.5rem;
-  flex-shrink: 0;
-  transition: background 0.15s ease;
-}
-
-.menu-icon {
-  width: 1rem;
-  height: 1rem;
-  object-fit: contain;
-  opacity: 0.55;
-  filter: brightness(0) invert(1);
-  transition: opacity 0.15s ease;
-}
-
-.menu-item:hover .menu-icon {
-  opacity: 0.85;
-}
-
-.menu-item.active {
-  background: var(--jade-dim);
-  color: var(--jade);
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.25rem;
+  transition: 0.2s;
 }
 
 .menu-item.active .icon-box {
-  background: rgba(111, 227, 160, 0.18);
+  background-color: rgba(0, 0, 0, 0.358);
 }
 
 .menu-item.active .menu-icon {
@@ -302,49 +282,8 @@ function toggleSidebar() {
   filter: brightness(0) invert(1);
 }
 
-/* ===== Sign out ===== */
-.botao-sair {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-  width: 100%;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid var(--line);
-  border-radius: 0.65rem;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--paper-dim);
-  font-family: inherit;
-  font-size: 0.86rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.botao-sair:hover {
-  background: var(--jade-dim);
-  border-color: rgba(111, 227, 160, 0.3);
-  color: var(--jade);
-}
-
-.botao-sair:hover .menu-icon-logout {
-  opacity: 1;
-}
-
-.sidebar--collapsed .botao-sair {
-  padding: 0.7rem;
-  gap: 0;
-  width: 2.9rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.menu-icon-logout {
-  width: 0.95rem;
-  height: 0.95rem;
-  opacity: 0.6;
-  filter: brightness(0) invert(1);
-  transition: opacity 0.15s ease;
+.sidebar--collapsed .icon-box,
+.sidebar--collapsed .menu-icon-logout {
+  margin: 0;
 }
 </style>
